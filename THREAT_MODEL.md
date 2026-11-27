@@ -1,0 +1,8 @@
+# Threat model
+
+- **Operator outage.** A user who saved a supported proof can verify and claim it through a separate deployment or the CLI. A request that has not made it into an executable batch still depends on rollup progress.
+- **File modification.** The file is untrusted. The app rebuilds the leaf and path, verifies the receipt against the chain, and submits the exact verified recipient and amount. It restricts files, proof depth, amounts, and supported network.
+- **Duplicate submission.** Diana enforces one execution for a withdrawal. The UI treats a successful indexed payout event matching the withdrawal fields as paid. An unavailable index fails closed. In an indexing delay the chain remains the arbiter.
+- **Network trust and pruning.** Local signature and Merkle checks use public node data received via the web proxy, or directly in the CLI. The web version is not a light client. A receipt does not recreate pruned execution state. Unavailable data prevents a ready result.
+- **Key and data handling.** The recovery file contains payout metadata and no keys. QoreX and the independent CLI own their respective signing boundaries. KEM notes are confidential to holders of their recipient keys. ML-KEM alone does not authenticate a note's sender. Keep signer files outside the repository and separate from the recovery files.
+- **Scope.** Diana test assets only. An invalid, unsupported, pending, or paid claim cannot be submitted by the normal web flow. The release uses one product-owned rollup when funded; the verifier can read other compatible Diana rollups.

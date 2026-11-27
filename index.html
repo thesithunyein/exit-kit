@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Verify and complete a QoreChain rollup withdrawal from your recovery file.">
+    <meta name="theme-color" content="#f3f1eb">
+    <title>Exit Kit — QoreChain withdrawal recovery</title>
+  </head>
+  <body>
+    <header class="top">
+      <a class="brand" href="/" aria-label="Exit Kit home"><span class="mark" aria-hidden="true"></span>Exit Kit</a>
+      <nav aria-label="Main navigation">
+        <a href="#recover" data-nav>Recover</a>
+        <a href="#withdrawals" data-nav>Withdrawals</a>
+        <a href="#guide" data-nav>Guide</a>
+      </nav>
+      <div class="network"><span class="network-dot" id="network-dot"></span><span>Diana testnet</span></div>
+    </header>
+
+    <main id="content">
+      <section id="recover" class="route" aria-labelledby="recover-heading">
+        <div class="intro">
+          <h1 id="recover-heading">Recover a withdrawal.</h1>
+          <p>Open a recovery file to check your withdrawal on QoreChain and claim it when it’s ready.</p>
+        </div>
+        <div class="workspace">
+          <section class="panel file-panel" aria-labelledby="file-heading">
+            <div class="panel-header"><span class="section-icon" aria-hidden="true">↥</span><h2 id="file-heading">Recovery file</h2></div>
+            <div id="dropzone" class="dropzone">
+              <span class="file-icon" aria-hidden="true"><i></i><i></i><i></i></span>
+              <strong>Drop your recovery file here</strong>
+              <span>Exit Kit JSON file</span>
+              <button id="choose-file" class="button primary" type="button">Choose file <span aria-hidden="true">↗</span></button>
+              <input type="file" id="file-input" accept="application/json,.json" hidden>
+            </div>
+            <div id="file-loaded" class="file-loaded" hidden>
+              <p class="file-name" id="file-name"></p>
+              <button type="button" class="button secondary" id="replace-file">Replace file</button>
+            </div>
+            <p class="small-note">Your file is read on this device.</p>
+          </section>
+          <section class="panel result-panel" aria-labelledby="result-heading">
+            <div class="panel-header"><span class="section-icon" aria-hidden="true">≡</span><h2 id="result-heading">Withdrawal details</h2></div>
+            <div class="empty" id="result-empty">
+              <div class="seal" aria-hidden="true"><div></div><span>↗</span></div>
+              <p id="empty-title"><strong>Open a recovery file to begin</strong></p>
+              <p id="empty-copy">You’ll see the amount, recipient, and whether the withdrawal is ready to claim.</p>
+            </div>
+            <div id="result" hidden></div>
+            <p class="feedback" id="recover-feedback" role="status" aria-live="polite" hidden></p>
+          </section>
+        </div>
+        <div class="bottom-note"><span>Lost your recovery file?</span> <a href="#withdrawals">Find your withdrawal on Diana <span aria-hidden="true">↗</span></a></div>
+      </section>
+
+      <section id="withdrawals" class="route" aria-labelledby="withdrawals-heading" hidden>
+        <div class="intro"><h1 id="withdrawals-heading">Find a withdrawal.</h1><p>Look up a Diana rollup and batch. To export a file, have the claim details and its Merkle proof ready.</p></div>
+        <div class="workspace">
+          <section class="panel padded" aria-labelledby="batch-heading">
+            <h2 id="batch-heading">Batch lookup</h2>
+            <form id="batch-form" class="form">
+              <label>Rollup ID<input name="rollupId" required pattern="[a-z0-9][a-z0-9._\-]{2,63}" autocomplete="off" placeholder="Enter rollup ID"></label>
+              <label>Batch index<input name="batchIndex" required inputmode="numeric" pattern="[0-9]+" autocomplete="off" placeholder="Enter batch index"></label>
+              <button class="button primary" type="submit">Check batch <span aria-hidden="true">↗</span></button>
+            </form>
+            <p id="batch-feedback" class="feedback" role="status" hidden></p>
+            <div id="batch-result" hidden></div>
+            <div class="form-divider"></div>
+            <h2>Find a paid withdrawal</h2>
+            <form id="payout-form" class="form">
+              <label>Diana transaction hash<input name="hash" required pattern="[a-fA-F0-9]{64}" placeholder="Enter the L1 transaction hash" autocomplete="off" spellcheck="false"></label>
+              <button class="button secondary" type="submit">Open receipt <span aria-hidden="true">↗</span></button>
+            </form>
+            <p id="payout-feedback" class="feedback" role="status" hidden></p>
+          </section>
+          <section class="panel padded" aria-labelledby="export-heading">
+            <h2 id="export-heading">Save a recovery file</h2>
+            <p class="section-description">Enter the withdrawal fields and sibling hashes supplied by the rollup. Exit Kit checks the proof before saving the file.</p>
+            <form id="export-form" class="form">
+              <div class="form-row">
+                <label>Rollup ID<input name="rollupId" required pattern="[a-z0-9][a-z0-9._\-]{2,63}" autocomplete="off"></label>
+                <label>Batch index<input name="batchIndex" required inputmode="numeric" pattern="[0-9]+" autocomplete="off"></label>
+              </div>
+              <div class="form-row">
+                <label>Withdrawal index<input name="withdrawalIndex" required inputmode="numeric" pattern="[0-9]+" autocomplete="off"></label>
+                <label>Amount in uQOR<input name="amount" required inputmode="numeric" pattern="[0-9]+" autocomplete="off"></label>
+              </div>
+              <label>Recipient address<input name="recipient" required placeholder="qor1…" autocomplete="off" spellcheck="false"></label>
+              <label>Merkle proof<textarea name="proof" rows="3" placeholder="One hexadecimal sibling hash per line" spellcheck="false"></textarea></label>
+              <button class="button primary" type="submit">Verify and save <span aria-hidden="true">↗</span></button>
+            </form>
+            <p id="export-feedback" class="feedback" role="status" hidden></p>
+          </section>
+        </div>
+      </section>
+
+      <section id="guide" class="route guide" aria-labelledby="guide-heading" hidden>
+        <div class="intro"><h1 id="guide-heading">Recovery guide.</h1><p>What you need to complete a withdrawal on QoreChain Diana.</p></div>
+        <div class="panel padded guide-content">
+          <h2>Save your file while the rollup is available</h2>
+          <p>A recovery file contains the recipient, amount, Merkle proof, and signed settlement receipt. Keep a copy somewhere you can reach from another device.</p>
+          <h2>Open the file and check the claim</h2>
+          <p>Exit Kit verifies the file against Diana. A withdrawal is ready once its batch is final and QoreChain still has the state needed to execute it.</p>
+          <h2>Send the claim to QoreChain</h2>
+          <p>Use the signing route shown after verification. The payout address is fixed by the proof. A separate account may submit the claim and pay the network fee.</p>
+          <p>If QoreX cannot display the withdrawal, use the independent command-line signer linked below. It verifies the same file and sends a hybrid-signed transaction only when you explicitly approve it.</p>
+          <p><a href="https://github.com/thesithunyein/exit-kit#independent-claim">Open command-line instructions</a></p>
+          <h2>When the chain can’t verify a claim</h2>
+          <p>Try again if the network is temporarily unavailable. If the batch or proof is missing, check with the rollup operator or use your own QoreChain node to verify available state.</p>
+          <a class="button secondary" href="https://docs.qorechain.io/rollups/zk-stark-withdrawals/" target="_blank" rel="noreferrer">QoreChain withdrawal docs <span aria-hidden="true">↗</span></a>
+        </div>
+      </section>
+    </main>
+    <footer class="footer"><span>Exit Kit</span><span>QoreChain Diana · Test assets</span><a href="https://github.com/thesithunyein/exit-kit">Source code <span aria-hidden="true">↗</span></a></footer>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
