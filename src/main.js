@@ -13,13 +13,17 @@ let currentFile = null;
 let currentStatus = null;
 let requestId = 0;
 
-function route() {
+function route({ moveFocus = false } = {}) {
   const requested = location.hash.slice(1);
   const active = knownRoutes.includes(requested) ? requested : 'recover';
   for (const id of knownRoutes) $(id).hidden = id !== active;
   for (const link of document.querySelectorAll('[data-nav]')) {
     if (link.hash === '#' + active) link.setAttribute('aria-current', 'page');
     else link.removeAttribute('aria-current');
+  }
+  if (moveFocus) {
+    window.scrollTo(0, 0);
+    $(active + '-heading').focus({ preventScroll: true });
   }
 }
 
@@ -328,7 +332,7 @@ for (const type of ['dragenter', 'dragover', 'dragleave', 'drop']) {
     if (type === 'drop') void readFile(event.dataTransfer.files[0]);
   });
 }
-window.addEventListener('hashchange', route);
+window.addEventListener('hashchange', () => route({ moveFocus: true }));
 route();
 client.params().then(() => {
   $('network-dot').classList.add('live');

@@ -1,3 +1,5 @@
+<img src="public/brand/exit-kit-192.png" width="96" height="96" alt="Exit Kit logo">
+
 # Exit Kit
 
 Recover a QoreChain Diana rollup withdrawal from a file you keep. Open the file, check the amount and original destination, and send the claim directly to QoreChain after settlement.

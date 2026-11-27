@@ -4,12 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Verify and complete a QoreChain rollup withdrawal from your recovery file.">
-    <meta name="theme-color" content="#f3f1eb">
+    <meta name="theme-color" content="#101010">
+    <link rel="icon" type="image/png" sizes="32x32" href="/brand/exit-kit-32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/brand/exit-kit-180.png">
+    <link rel="manifest" href="/manifest.webmanifest">
     <title>Exit Kit — QoreChain withdrawal recovery</title>
   </head>
   <body>
     <header class="top">
-      <a class="brand" href="/" aria-label="Exit Kit home"><span class="mark" aria-hidden="true"></span>Exit Kit</a>
+      <a class="brand" href="/" aria-label="Exit Kit home"><img class="mark" src="/brand/exit-kit-192.png" width="38" height="38" alt="">Exit Kit</a>
       <nav aria-label="Main navigation">
         <a href="#recover" data-nav>Recover</a>
         <a href="#withdrawals" data-nav>Withdrawals</a>
@@ -21,17 +24,23 @@
 
     <main id="content">
       <section id="recover" class="route" aria-labelledby="recover-heading">
-        <div class="intro">
-          <h1 id="recover-heading">Recover a withdrawal.</h1>
-          <p>Open a recovery file to check your withdrawal on QoreChain and claim it when it’s ready.</p>
+        <div class="intro recovery-intro">
+          <div class="intro-copy">
+            <h1 id="recover-heading" tabindex="-1">Recover a<br class="hero-break"> withdrawal.</h1>
+            <p>Open a recovery file to check your withdrawal on QoreChain and claim it when it’s ready.</p>
+          </div>
+          <div class="brand-art" aria-hidden="true">
+            <img src="/brand/exit-kit-512.png" width="512" height="512" alt="">
+          </div>
         </div>
         <div class="workspace">
           <section class="panel file-panel" aria-labelledby="file-heading">
-            <div class="panel-header"><span class="section-icon" aria-hidden="true">↥</span><h2 id="file-heading">Recovery file</h2></div>
+            <div class="panel-header"><span class="section-icon" aria-hidden="true">↑</span><h2 id="file-heading">Recovery file</h2></div>
             <div id="dropzone" class="dropzone">
               <span class="file-icon" aria-hidden="true"><i></i><i></i><i></i></span>
-              <strong>Drop your recovery file here</strong>
-              <span>Exit Kit JSON file</span>
+              <strong class="drop-label">Drop your recovery file here</strong>
+              <strong class="pick-label">Select a recovery file</strong>
+              <span>JSON file, up to 64 KB</span>
               <button id="choose-file" class="button primary" type="button">Choose file <span aria-hidden="true">↗</span></button>
               <input type="file" id="file-input" accept="application/json,.json" hidden>
             </div>
@@ -44,11 +53,11 @@
           <section class="panel result-panel" aria-labelledby="result-heading">
             <div class="panel-header"><span class="section-icon" aria-hidden="true">≡</span><h2 id="result-heading">Withdrawal details</h2></div>
             <div class="empty" id="result-empty">
-              <div class="seal" aria-hidden="true"><div></div><span>↗</span></div>
+              <div class="receipt-outline" aria-hidden="true"><i></i><i></i><i></i></div>
               <p id="empty-title"><strong>Open a recovery file to begin</strong></p>
               <p id="empty-copy">You’ll see the amount, recipient, and whether the withdrawal is ready to claim.</p>
             </div>
-            <div id="result" hidden></div>
+            <div id="result" aria-live="polite" hidden></div>
             <p class="feedback" id="recover-feedback" role="status" aria-live="polite" hidden></p>
           </section>
         </div>
@@ -56,7 +65,7 @@
       </section>
 
       <section id="withdrawals" class="route" aria-labelledby="withdrawals-heading" hidden>
-        <div class="intro"><h1 id="withdrawals-heading">Find a withdrawal.</h1><p>Look up a Diana rollup and batch. To export a file, have the claim details and its Merkle proof ready.</p></div>
+        <div class="intro"><h1 id="withdrawals-heading" tabindex="-1">Find a withdrawal.</h1><p>Look up a Diana rollup and batch. To export a file, have the claim details and its Merkle proof ready.</p></div>
         <div class="workspace">
           <section class="panel padded" aria-labelledby="batch-heading">
             <h2 id="batch-heading">Batch lookup</h2>
@@ -97,7 +106,7 @@
       </section>
 
       <section id="operator" class="route" aria-labelledby="operator-heading" hidden>
-        <div class="intro"><h1 id="operator-heading">Rollup status.</h1><p>Check the latest batch, inbox progress, and signed settlement receipt on Diana.</p></div>
+        <div class="intro"><h1 id="operator-heading" tabindex="-1">Rollup status.</h1><p>Check the latest batch, inbox progress, and signed settlement receipt on Diana.</p></div>
         <div class="workspace">
           <section class="panel padded" aria-labelledby="rollup-heading">
             <h2 id="rollup-heading">Rollup lookup</h2>
@@ -116,7 +125,7 @@
       </section>
 
       <section id="guide" class="route guide" aria-labelledby="guide-heading" hidden>
-        <div class="intro"><h1 id="guide-heading">Recovery guide.</h1><p>What you need to complete a withdrawal on QoreChain Diana.</p></div>
+        <div class="intro"><h1 id="guide-heading" tabindex="-1">Recovery guide.</h1><p>What you need to complete a withdrawal on QoreChain Diana.</p></div>
         <div class="panel padded guide-content">
           <h2>Save your file while the rollup is available</h2>
           <p>A recovery file contains the recipient, amount, Merkle proof, and signed settlement receipt. Keep a copy somewhere you can reach from another device.</p>
