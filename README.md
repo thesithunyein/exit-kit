@@ -2,6 +2,8 @@
 
 # Exit Kit
 
+[4K crystal animation](assets/exit-kit-crystal-4k.mp4)
+
 Recover a QoreChain Diana rollup withdrawal from a file you keep. Open the file, check the amount and original destination, and send the claim directly to QoreChain after settlement.
 
 The browser reads recovery files locally. The web deployment proxies a narrow set of public Diana reads because the public REST node does not allow cross-origin requests. The independent CLI reads Diana directly and does not require the web app, operator API, or indexer.

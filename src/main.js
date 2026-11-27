@@ -1,4 +1,5 @@
 import './style.css';
+import './hero-motion.js';
 import { CHAIN_ID, FILE_LIMIT, RecoveryError, formatAmount } from './recovery-common.js';
 
 const rest = new URL('/api/diana', location.origin).href;
