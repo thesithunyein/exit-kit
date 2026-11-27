@@ -10,6 +10,12 @@ const routeTargets = new Map([
   ['privacy', ['guide', 'privacy-heading']],
   ['find-withdrawal', ['withdrawals', 'payout-heading']],
   ['recovery-details', ['recover', 'result-heading']],
+  ['open-recovery-file', ['recover', 'file-heading']],
+  ['create-recovery-file', ['withdrawals', 'export-heading']],
+  ['guide-save', ['guide', 'guide-save']],
+  ['guide-verify', ['guide', 'guide-verify']],
+  ['guide-claim', ['guide', 'guide-claim']],
+  ['guide-troubleshoot', ['guide', 'guide-troubleshoot']],
 ]);
 let currentFile = null;
 let currentStatus = null;
@@ -37,6 +43,11 @@ function route({ moveFocus = false } = {}) {
     if (link.hash === '#' + active) link.setAttribute('aria-current', 'page');
     else link.removeAttribute('aria-current');
   }
+  for (const link of document.querySelectorAll('[data-guide-link]')) {
+    if (link.hash === location.hash) link.setAttribute('aria-current', 'location');
+    else link.removeAttribute('aria-current');
+  }
+  if (requested === 'create-recovery-file') $('proof-tools').open = true;
   if (target) {
     $(heading).focus();
   } else if (moveFocus) {

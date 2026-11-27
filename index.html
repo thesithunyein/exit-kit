@@ -39,7 +39,7 @@
           </div>
           <button class="hero-motion" id="hero-motion" type="button" aria-label="Pause crystal animation" hidden>Pause</button>
         </div>
-        <div class="workspace">
+        <div class="workspace recovery-workspace">
           <section id="file-panel" class="panel file-panel" aria-labelledby="file-heading">
             <div class="panel-header"><h2 id="file-heading" tabindex="-1">Recovery file</h2></div>
             <div id="dropzone" class="dropzone">
@@ -75,11 +75,11 @@
             <div id="result" hidden></div>
             <p class="feedback" id="recover-feedback" role="status" aria-live="polite" hidden></p>
           </section>
+          <aside class="recovery-help">
+            <h2>Lost your recovery file?</h2>
+            <a href="#find-withdrawal">Find your withdrawal on Diana <span aria-hidden="true">↗</span></a>
+          </aside>
         </div>
-        <aside class="recovery-help">
-          <h2>Lost your recovery file?</h2>
-          <a href="#find-withdrawal">Find your withdrawal on Diana <span aria-hidden="true">↗</span></a>
-        </aside>
       </section>
 
       <section id="withdrawals" class="route" aria-labelledby="withdrawals-heading" hidden>
@@ -87,16 +87,20 @@
         <div class="workspace">
           <section class="panel padded" aria-labelledby="payout-heading">
             <h2 id="payout-heading" tabindex="-1">Find a paid withdrawal</h2>
-            <p class="section-description">Use the L1 transaction hash from your wallet history or the Diana explorer. Exit Kit verifies the payout and opens its receipt.</p>
+            <p class="section-description" id="payout-hint">Use the L1 payout hash from your wallet history or the Diana explorer.</p>
             <form id="payout-form" class="form">
-              <label>Diana transaction hash<input id="payout-hash" name="hash" required pattern="[a-fA-F0-9]{64}" placeholder="64 hexadecimal characters" autocomplete="off" spellcheck="false"></label>
-              <button class="button primary" type="submit">Open receipt <span aria-hidden="true">↗</span></button>
+              <label>Diana transaction hash<input id="payout-hash" name="hash" aria-describedby="payout-hint" required pattern="[a-fA-F0-9]{64}" placeholder="64 hexadecimal characters" autocomplete="off" spellcheck="false"></label>
+              <button class="button primary" type="submit">Open receipt</button>
             </form>
             <p id="payout-feedback" class="feedback" role="status" hidden></p>
+            <div class="lookup-next">
+              <span>Still waiting for the payout?</span>
+              <a href="#create-recovery-file">Use a proof from your rollup</a>
+            </div>
           </section>
           <div class="withdrawal-tools">
           <details class="panel padded tool-panel" id="proof-tools">
-            <summary id="export-heading">Create a recovery file</summary>
+            <summary id="export-heading"><span>Create a recovery file<span class="tool-preview">Verify the claim details and Merkle proof from your rollup.</span></span></summary>
             <p class="section-description">For an unpaid withdrawal, get its claim details and Merkle proof from the rollup that issued it. Exit Kit checks the proof before saving the file.</p>
             <form id="export-form" class="form">
               <div class="form-row">
@@ -114,7 +118,7 @@
             <p id="export-feedback" class="feedback" role="status" hidden></p>
           </details>
           <details class="panel padded tool-panel">
-            <summary id="batch-heading">Check a rollup batch</summary>
+            <summary id="batch-heading"><span>Check a rollup batch<span class="tool-preview">Look up finality with a rollup ID and batch index.</span></span></summary>
             <p class="section-description">Check whether a batch has finalized before you prepare a recovery file.</p>
             <form id="batch-form" class="form">
               <label>Rollup ID<input name="rollupId" required pattern="[a-z0-9][a-z0-9._\-]{2,63}" autocomplete="off" placeholder="Enter rollup ID"></label>
@@ -148,21 +152,56 @@
       </section>
 
       <section id="guide" class="route guide" aria-labelledby="guide-heading" hidden>
-        <div class="intro"><h1 id="guide-heading" tabindex="-1">Recovery guide.</h1><p>What you need to complete a withdrawal on QoreChain Diana.</p></div>
-        <div class="panel padded guide-content">
-          <h2>Save your file while the rollup is available</h2>
-          <p>A recovery file contains the recipient, amount, Merkle proof, and signed settlement receipt. Keep a copy somewhere you can reach from another device.</p>
-          <h2>Open the file and check the claim</h2>
-          <p>Exit Kit verifies the file against Diana. A withdrawal is ready once its batch is final and QoreChain still has the state needed to execute it.</p>
-          <h2>Send the claim to QoreChain</h2>
-          <p>Use the signing route shown after verification. The payout address is fixed by the proof. A separate account may submit the claim and pay the network fee.</p>
-          <p>If QoreX cannot display the withdrawal, use the independent command-line signer linked below. It verifies the same file and sends a hybrid-signed transaction only when you explicitly approve it.</p>
-          <p><a href="https://github.com/thesithunyein/exit-kit#independent-claim">Open command-line instructions</a></p>
-          <h2>When the chain can’t verify a claim</h2>
-          <p>Try again if the network is temporarily unavailable. If the batch or proof is missing, check with the rollup operator or use your own QoreChain node to verify available state.</p>
-          <h2 id="privacy-heading" tabindex="-1">Recovery file privacy</h2>
-          <p>Exit Kit opens the recovery file on your device and uses public rollup and batch identifiers to query Diana. When you approve a claim, your wallet sends the withdrawal transaction, including its proof, to QoreChain.</p>
-          <a class="button secondary" href="https://docs.qorechain.io/rollups/zk-stark-withdrawals/" target="_blank" rel="noreferrer">QoreChain withdrawal docs <span aria-hidden="true">↗</span></a>
+        <div class="intro"><h1 id="guide-heading" tabindex="-1">Recovery guide.</h1><p>From saving a recovery file to confirming a payout on Diana.</p></div>
+        <div class="guide-layout">
+          <aside class="guide-sidebar" aria-label="Guide shortcuts">
+            <nav class="panel guide-nav" aria-labelledby="guide-nav-heading">
+              <h2 id="guide-nav-heading">On this page</h2>
+              <ul>
+                <li><a data-guide-link href="#guide-save">Save your recovery file</a></li>
+                <li><a data-guide-link href="#guide-verify">Check the withdrawal status</a></li>
+                <li><a data-guide-link href="#guide-claim">Claim on Diana</a></li>
+                <li><a data-guide-link href="#guide-troubleshoot">Troubleshoot a claim</a></li>
+                <li><a data-guide-link href="#privacy">Recovery file privacy</a></li>
+              </ul>
+            </nav>
+            <section class="panel guide-shortcuts" aria-labelledby="guide-shortcuts-heading">
+              <h2 id="guide-shortcuts-heading">Recovery tools</h2>
+              <a class="button primary" href="#open-recovery-file">Open a recovery file</a>
+              <a class="guide-text-link" href="#find-withdrawal">Find a paid withdrawal <span aria-hidden="true">→</span></a>
+              <a class="guide-text-link" href="#create-recovery-file">Create a file from a proof <span aria-hidden="true">→</span></a>
+            </section>
+          </aside>
+          <article class="panel guide-content">
+            <section>
+              <h2 id="guide-save" tabindex="-1">Save your recovery file</h2>
+              <p>Save a copy while your rollup app is available. The file contains the recipient, amount, Merkle proof, and signed settlement receipt. Keep it somewhere you can reach from another device.</p>
+            </section>
+            <section>
+              <h2 id="guide-verify" tabindex="-1">Check the withdrawal status</h2>
+              <p>Open the file in Exit Kit. It checks the proof and settlement receipt against Diana before showing the amount and recipient.</p>
+              <dl class="guide-statuses">
+                <div><dt><span class="status" data-state="ready">Ready to claim</span></dt><dd>The batch is final. Review the destination and continue with QoreX.</dd></div>
+                <div><dt><span class="status" data-state="pending">Waiting for finality</span></dt><dd>Wait for the batch to finalize, then check the withdrawal again.</dd></div>
+                <div><dt><span class="status" data-state="paid">Already claimed</span></dt><dd>Diana recorded the payout. You can open its transaction in the explorer.</dd></div>
+              </dl>
+            </section>
+            <section>
+              <h2 id="guide-claim" tabindex="-1">Claim on Diana</h2>
+              <p>Review the withdrawal in QoreX and approve the claim and network fee. The recipient address is fixed by the proof. A separate account can submit the claim and pay the fee.</p>
+              <p>If QoreX cannot display the withdrawal, the <a href="https://github.com/thesithunyein/exit-kit#independent-claim">independent command-line signer</a> can verify the same file and submit a hybrid-signed transaction with your approval.</p>
+            </section>
+            <section>
+              <h2 id="guide-troubleshoot" tabindex="-1">Troubleshoot a claim</h2>
+              <p>If Diana is temporarily unavailable, check again. If the batch or proof is missing, contact the rollup operator or verify the available state through your own QoreChain node.</p>
+              <p>For a lost file, <a href="#find-withdrawal">find a paid withdrawal by its L1 hash</a>. For an unpaid withdrawal, <a href="#create-recovery-file">create a file with the proof supplied by your rollup</a>.</p>
+            </section>
+            <section>
+              <h2 id="privacy-heading" tabindex="-1">Recovery file privacy</h2>
+              <p>Exit Kit reads the file on your device and uses public rollup and batch identifiers to query Diana. When you approve a claim, your wallet sends the withdrawal transaction and proof to QoreChain.</p>
+              <a class="guide-text-link" href="https://docs.qorechain.io/rollups/zk-stark-withdrawals/" target="_blank" rel="noreferrer">QoreChain withdrawal docs <span aria-hidden="true">↗</span></a>
+            </section>
+          </article>
         </div>
       </section>
     </main>
