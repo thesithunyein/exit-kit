@@ -179,6 +179,16 @@ h1 {
 }
 .recovery-intro .intro-copy { position: relative; z-index: 2; max-width: 680px; }
 .recovery-intro h1 { max-width: 100%; }
+.hero-guide-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 590;
+}
+.hero-guide-link:hover { color: var(--accent-hover); }
 .brand-art { display: none; }
 .brand-art img {
   mask-image: linear-gradient(to right, transparent, black 13%, black 87%, transparent),
