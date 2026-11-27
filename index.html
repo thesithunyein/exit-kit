@@ -13,6 +13,7 @@
       <nav aria-label="Main navigation">
         <a href="#recover" data-nav>Recover</a>
         <a href="#withdrawals" data-nav>Withdrawals</a>
+        <a href="#operator" data-nav>Operator</a>
         <a href="#guide" data-nav>Guide</a>
       </nav>
       <div class="network"><span class="network-dot" id="network-dot"></span><span>Diana testnet</span></div>
@@ -91,6 +92,25 @@
               <button class="button primary" type="submit">Verify and save <span aria-hidden="true">↗</span></button>
             </form>
             <p id="export-feedback" class="feedback" role="status" hidden></p>
+          </section>
+        </div>
+      </section>
+
+      <section id="operator" class="route" aria-labelledby="operator-heading" hidden>
+        <div class="intro"><h1 id="operator-heading">Rollup status.</h1><p>Check the latest batch, inbox progress, and signed settlement receipt on Diana.</p></div>
+        <div class="workspace">
+          <section class="panel padded" aria-labelledby="rollup-heading">
+            <h2 id="rollup-heading">Rollup lookup</h2>
+            <form id="operator-form" class="form">
+              <label>Rollup ID<input name="operatorRollupId" required placeholder="Enter rollup ID" autocomplete="off" spellcheck="false"></label>
+              <button class="button primary" type="submit">Check rollup <span aria-hidden="true">↗</span></button>
+            </form>
+            <p id="operator-feedback" class="feedback" role="status" hidden></p>
+          </section>
+          <section class="panel padded" aria-labelledby="health-heading">
+            <h2 id="health-heading">Latest chain state</h2>
+            <p class="section-description" id="operator-empty">Enter a rollup ID to read its current state.</p>
+            <div id="operator-result" hidden></div>
           </section>
         </div>
       </section>

@@ -6,6 +6,7 @@ const id = '(0|[1-9][0-9]{0,19})';
 const routes = [
   /^\/qorechain\/rdk\/v1\/params$/,
   new RegExp('^/qorechain/rdk/v1/rollup/' + rollup + '$'),
+  new RegExp('^/qorechain/rdk/v1/(latest_batch|inbox)/' + rollup + '$'),
   new RegExp('^/qorechain/rdk/v1/batch/' + rollup + '/' + id + '$'),
   new RegExp('^/qorechain/multilayer/v1/anchors?/' + rollup + '$'),
   new RegExp('^/qorechain/pqc/v1/account/' + address + '$'),

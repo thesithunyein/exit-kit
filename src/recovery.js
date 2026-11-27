@@ -126,6 +126,31 @@ export async function readBatch(client, rollupId, batchIndex) {
   }
 }
 
+export async function readOperator(client, rollupId) {
+  if (!ROLLUP_ID.test(rollupId)) throw new RecoveryError('Enter a valid rollup ID.');
+  let rollup;
+  try { rollup = await client.rest.getRollup(rollupId); }
+  catch (error) {
+    if (isRestNotFound(error)) throw new RecoveryError('This rollup was not found on Diana.');
+    throw error;
+  }
+  if (rollup.rollupId !== rollupId) throw new RecoveryError('Diana returned a different rollup.');
+  const inbox = rollup.executionVm === 'qledger-v1' ? await client.rest.getInbox(rollupId) : null;
+  let batch;
+  try { batch = await client.rest.getLatestBatch(rollupId); }
+  catch (error) { if (!isRestNotFound(error)) throw error; }
+  if (!batch?.rollupId) return { rollup, inbox, batch: null };
+  if (batch.rollupId !== rollupId) throw new RecoveryError('Diana returned a batch from a different rollup.');
+  let receiptVerified = false;
+  try {
+    const receipt = await buildSettlementReceipt(client, rollupId, batch.batchIndex);
+    receiptVerified = (await verifySettlementReceipt(receipt, { client })).valid;
+  } catch {
+    // The batch can still be inspected if a covering anchor is unavailable.
+  }
+  return { rollup, inbox, batch, receiptVerified };
+}
+
 export async function findPayout(restBase, claim) {
   const event = 'rdk_withdrawal_executed';
   const query = new URLSearchParams({ query: [

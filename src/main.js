@@ -1,14 +1,14 @@
 import './style.css';
 import {
   CHAIN_ID, FILE_LIMIT, RecoveryError, chainClient, exportRecovery, formatAmount,
-  parseRecovery, readBatch, recoveryFromPayout, verifyRecovery, walletWithdrawalMessage,
+  parseRecovery, readBatch, readOperator, recoveryFromPayout, verifyRecovery, walletWithdrawalMessage,
 } from './recovery.js';
 
 const rest = new URL('/api/diana', location.origin).href;
 const client = chainClient(rest);
 const $ = id => document.getElementById(id);
 const explorer = 'https://explore.qore.network/tx/';
-const knownRoutes = ['recover', 'withdrawals', 'guide'];
+const knownRoutes = ['recover', 'withdrawals', 'operator', 'guide'];
 let currentFile = null;
 let currentStatus = null;
 let requestId = 0;
@@ -288,6 +288,32 @@ $('payout-form').addEventListener('submit', async event => {
   } finally {
     button.disabled = false;
   }
+});
+
+$('operator-form').addEventListener('submit', async event => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const button = form.querySelector('button');
+  button.disabled = true;
+  $('operator-result').hidden = true;
+  $('operator-empty').hidden = true;
+  feedback('operator-feedback', 'Reading the rollup’s latest state from Diana.');
+  try {
+    const status = await readOperator(client, formValues(form).operatorRollupId.trim());
+    const facts = [
+      ['Rollup', status.rollup.rollupId], ['Status', status.rollup.status],
+      ['Execution', status.rollup.executionVm || 'Not reported'],
+      ['Latest batch', status.batch ? '#' + status.batch.batchIndex : 'No batch yet'],
+    ];
+    if (status.inbox) facts.push(['Inbox sequence', String(status.inbox.headSequence)],
+      ['Consumed through', String(status.inbox.consumedSequence)]);
+    if (status.batch) facts.push(['Settlement', status.batch.status],
+      ['Signed receipt', status.receiptVerified ? 'Verified' : 'Could not verify']);
+    $('operator-result').replaceChildren(detailList(facts));
+    $('operator-result').hidden = false;
+    feedback('operator-feedback', '');
+  } catch (error) { feedback('operator-feedback', messageFor(error), 'error'); }
+  finally { button.disabled = false; }
 });
 
 for (const id of ['choose-file', 'replace-file']) $(id).addEventListener('click', () => $('file-input').click());

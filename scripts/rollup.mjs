@@ -6,8 +6,6 @@ import {
   planQledgerBatch, qledgerAccumulate, qledgerKeypairFromSeed, qledgerWithdrawalProof,
   signQledgerTx,
 } from '@qorechain/rdk';
-import { deriveSealKeys, envelopeFromText, envelopeToText, open, seal } from '@qorechain/qoreseal';
-import { fetchMlkemPublicKey } from '@qorechain/qoreseal/network';
 import { CHAIN_ID, DIANA_REST, ROLLUP_ID, chainClient, exportRecovery } from '../src/recovery.js';
 import { committed, connectSigner, mnemonicFor } from './signer.mjs';
 
@@ -66,7 +64,8 @@ async function run() {
       statuses.push({ batch: batch.batchIndex, status: batch.status, signedReceipt: true });
     }
     const inbox = await client.rest.getInbox(rollupId);
-    console.log(JSON.stringify({ rollupId, batches: statuses, inboxHead: String(inbox.head), checkedAt: new Date().toISOString() }, null, 2));
+    console.log(JSON.stringify({ rollupId, batches: statuses, inboxHead: inbox.headSequence,
+      consumedThrough: inbox.consumedSequence, checkedAt: new Date().toISOString() }, null, 2));
     return;
   }
   if (operation === 'export') {
@@ -89,6 +88,8 @@ async function run() {
   if (operation === 'seal-note') {
     const [recipient, input, output] = process.argv.slice(3);
     if (!isCanonicalQorAddress(recipient || '') || !input || !output) throw new Error('Usage: node scripts/rollup.mjs seal-note <recipient> <input-file> <output-file>');
+    const { envelopeToText, seal } = await import('@qorechain/qoreseal');
+    const { fetchMlkemPublicKey } = await import('@qorechain/qoreseal/network');
     const mlkemPublicKey = await fetchMlkemPublicKey({ address: recipient, rest: DIANA_REST });
     const plaintext = await readFile(input);
     const envelope = seal({ chainId: CHAIN_ID, purpose, mode: 'mlkem', recipients: [{ mlkemPublicKey }],
@@ -100,6 +101,7 @@ async function run() {
   if (operation === 'open-note') {
     const [input, output] = process.argv.slice(3);
     if (!input || !output) throw new Error('Usage: node scripts/rollup.mjs open-note <input-file> <output-file>');
+    const { deriveSealKeys, envelopeFromText, open } = await import('@qorechain/qoreseal');
     const envelope = envelopeFromText((await readFile(input, 'utf8')).trim());
     const plaintext = open({ chainId: CHAIN_ID, purpose, envelope, keys: deriveSealKeys({ mnemonic }),
       aad: new TextEncoder().encode(rollupId) });
@@ -128,6 +130,7 @@ async function run() {
       if (shortage <= 0n) { console.log('Operator bond already covers the minimum.'); return; }
       response = await tx.bondRollupSubmitter({ rollupId, amount: shortage });
     } else if (operation === 'register-kem') {
+      const { deriveSealKeys } = await import('@qorechain/qoreseal');
       response = await tx.registerKemKey({ publicKey: deriveSealKeys({ mnemonic }).mlkemPublicKey });
     } else if (operation === 'deposit') {
       response = await tx.depositToRollup({ rollupId, account: keys.accountId, amount: positiveAmount(process.argv[3], 'Deposit') });
