@@ -1,27 +1,37 @@
 import './style.css';
-import {
-  CHAIN_ID, FILE_LIMIT, RecoveryError, chainClient, exportRecovery, formatAmount,
-  parseRecovery, readBatch, readOperator, recoveryFromPayout, verifyRecovery, walletWithdrawalMessage,
-} from './recovery.js';
+import { CHAIN_ID, FILE_LIMIT, RecoveryError, formatAmount } from './recovery-common.js';
 
 const rest = new URL('/api/diana', location.origin).href;
-const client = chainClient(rest);
 const $ = id => document.getElementById(id);
 const explorer = 'https://explore.qore.network/tx/';
 const knownRoutes = ['recover', 'withdrawals', 'operator', 'guide'];
 let currentFile = null;
 let currentStatus = null;
 let requestId = 0;
+let claimInProgress = false;
+let recoveryModule;
+
+function loadRecovery() {
+  recoveryModule ??= import('./recovery.js').then(module => ({
+    ...module, client: module.chainClient(rest),
+  })).catch(error => {
+    recoveryModule = undefined;
+    throw error;
+  });
+  return recoveryModule;
+}
 
 function route({ moveFocus = false } = {}) {
   const requested = location.hash.slice(1);
-  const active = knownRoutes.includes(requested) ? requested : 'recover';
+  const active = requested === 'privacy' ? 'guide' : knownRoutes.includes(requested) ? requested : 'recover';
   for (const id of knownRoutes) $(id).hidden = id !== active;
   for (const link of document.querySelectorAll('[data-nav]')) {
     if (link.hash === '#' + active) link.setAttribute('aria-current', 'page');
     else link.removeAttribute('aria-current');
   }
-  if (moveFocus) {
+  if (requested === 'privacy') {
+    $('privacy-heading').focus();
+  } else if (moveFocus) {
     window.scrollTo(0, 0);
     $(active + '-heading').focus({ preventScroll: true });
   }
@@ -82,6 +92,23 @@ const states = {
   rejected: 'Verification failed',
 };
 
+const stateDescriptions = {
+  checking: 'Verifying the signed receipt and withdrawal proof against QoreChain.',
+  ready: 'Review the destination before approving the claim in QoreX.',
+  pending: 'The batch must finalize on QoreChain before you can claim.',
+  paid: 'Diana has recorded the payout to the recipient below.',
+  unavailable: 'The withdrawal could not be confirmed. Check again for the latest chain status.',
+  rejected: 'Replace the file if you downloaded another copy from your rollup.',
+};
+
+function selectFile(name, state, status) {
+  $('dropzone').hidden = true;
+  $('file-loaded').hidden = false;
+  $('file-loaded').dataset.state = state;
+  $('file-name').textContent = name;
+  $('file-state').textContent = status;
+}
+
 function renderFile(status = { state: 'checking' }) {
   if (!currentFile) return;
   currentStatus = status;
@@ -89,13 +116,30 @@ function renderFile(status = { state: 'checking' }) {
   const view = node('div', '', 'result-body');
   const badge = node('span', states[status.state], 'status');
   badge.dataset.state = status.state;
-  const details = [
-    ['Recipient', file.recipient], ['Rollup', file.rollupId], ['Batch', '#' + file.batchIndex],
-  ];
-  if (status.txHash) details.push(['L1 transaction', txLink(status.txHash)]);
-  view.append(badge, node('p', formatAmount(file.amount), 'amount'), detailList(details));
   if (status.receiptVerified) {
-    const disclosure = node('details');
+    const amountCard = node('div', '', 'amount-card');
+    const summary = node('div', '', 'amount-header');
+    summary.append(node('span', 'Withdrawal amount', 'amount-label'), badge);
+    amountCard.append(summary, node('p', formatAmount(file.amount), 'amount'),
+      node('p', stateDescriptions[status.state], 'state-copy'));
+    const details = [
+      ['Recipient', file.recipient], ['Rollup', file.rollupId], ['Batch', '#' + file.batchIndex],
+    ];
+    if (status.txHash) details.push(['L1 transaction', txLink(status.txHash)]);
+    view.append(amountCard, detailList(details));
+  } else {
+    const state = node('div', '', 'result-state');
+    state.append(badge, node('p', stateDescriptions[status.state], 'state-copy'));
+    if (status.state === 'checking') {
+      const skeleton = node('div', '', 'verification-skeleton');
+      skeleton.setAttribute('aria-hidden', 'true');
+      skeleton.append(node('span'), node('span'), node('span'));
+      state.append(skeleton);
+    }
+    view.append(state);
+  }
+  if (status.receiptVerified) {
+    const disclosure = node('details', '', 'verification');
     disclosure.append(node('summary', 'View verification'));
     const checks = node('ul', '', 'checks');
     for (const check of [
@@ -110,24 +154,37 @@ function renderFile(status = { state: 'checking' }) {
   if (status.state !== 'checking') {
     const actions = node('div', '', 'actions');
     if (status.state === 'ready') {
-      actions.append(controls('Claim with QoreX', claimWithWallet, true));
+      const claim = controls(claimInProgress ? 'Claim in progress…' : 'Claim with QoreX', claimWithWallet, true);
+      claim.id = 'claim-button';
+      claim.disabled = claimInProgress;
+      actions.append(claim);
       actions.append(controls('Copy command', copyCommand));
     }
     if (status.state === 'paid') actions.append(controls('Save recovery file', () => download(file)));
-    actions.append(controls('Check again', refreshClaim));
+    const refresh = controls('Check again', () => refreshClaim({ moveFocus: true }));
+    refresh.id = 'refresh-claim';
+    refresh.disabled = claimInProgress;
+    actions.append(refresh);
     view.append(actions);
   }
   $('result').replaceChildren(view);
   $('result').hidden = false;
   $('result-empty').hidden = true;
+  $('result').setAttribute('aria-busy', String(status.state === 'checking'));
+  $('result-announcement').textContent = status.receiptVerified
+    ? states[status.state] + '. ' + formatAmount(file.amount) + '.'
+    : states[status.state] + '.';
 }
 
-async function refreshClaim() {
+async function refreshClaim({ moveFocus = false } = {}) {
   if (!currentFile) return;
   const id = ++requestId;
+  if (moveFocus) $('result-heading').focus({ preventScroll: true });
   feedback('recover-feedback', '');
   renderFile();
   try {
+    const { client, verifyRecovery } = await loadRecovery();
+    if (id !== requestId) return;
     const verified = await verifyRecovery(client, rest, currentFile);
     if (id !== requestId) return;
     renderFile(verified);
@@ -140,24 +197,32 @@ async function refreshClaim() {
 }
 
 async function readFile(file) {
-  if (!file) return;
+  if (!file || claimInProgress) return;
   const id = ++requestId;
   currentFile = null;
   currentStatus = null;
   $('result').hidden = true;
   $('result-empty').hidden = false;
-  $('file-name').textContent = file.name;
-  $('file-loaded').hidden = false;
-  $('dropzone').hidden = true;
+  $('result-announcement').textContent = '';
+  const choosing = document.activeElement === $('choose-file');
+  selectFile(file.name, 'reading', 'Reading on this device…');
+  if (choosing) $('replace-file').focus({ preventScroll: true });
   feedback('recover-feedback', '');
   try {
-    if (file.size > FILE_LIMIT) throw new RecoveryError('Choose a recovery file smaller than 64 KB.');
-    const decoded = parseRecovery(await file.text());
+    if (file.size > FILE_LIMIT) throw new RecoveryError('Choose a recovery file that is 64 KB or smaller.');
+    const [{ parseRecovery }, text] = await Promise.all([loadRecovery(), file.text()]);
+    const decoded = parseRecovery(text);
     if (id !== requestId) return;
     currentFile = decoded;
+    selectFile(file.name, 'loaded', 'Opened on this device');
     await refreshClaim();
   } catch (error) {
-    if (id === requestId) feedback('recover-feedback', messageFor(error), 'error');
+    if (id === requestId) {
+      selectFile(file.name, 'error', 'Could not open this file');
+      $('result-empty').hidden = true;
+      $('result-announcement').textContent = 'The recovery file could not be opened.';
+      feedback('recover-feedback', messageFor(error), 'error');
+    }
   }
 }
 
@@ -177,6 +242,7 @@ async function copyCommand() {
 }
 
 async function claimWithWallet(event) {
+  if (claimInProgress) return;
   const wallet = window.qorex?.native;
   if (!wallet?.enable || !wallet?.signAndBroadcast) {
     feedback('recover-feedback', 'Open Exit Kit in QoreX or use Copy command to submit with your own signer.', 'error');
@@ -186,9 +252,14 @@ async function claimWithWallet(event) {
   if (!file || currentStatus?.state !== 'ready') return;
   const id = requestId;
   const button = event.currentTarget;
+  claimInProgress = true;
   button.disabled = true;
+  button.textContent = 'Claim in progress…';
+  $('replace-file').disabled = true;
+  $('refresh-claim').disabled = true;
   feedback('recover-feedback', 'Checking the claim before asking QoreX to sign.');
   try {
+    const { client, verifyRecovery, walletWithdrawalMessage } = await loadRecovery();
     const status = await verifyRecovery(client, rest, file);
     if (id !== requestId) return;
     if (status.state !== 'ready') { renderFile(status); feedback('recover-feedback', ''); return; }
@@ -215,7 +286,13 @@ async function claimWithWallet(event) {
       feedback('recover-feedback', 'QoreX could not confirm the claim. Check your testnet connection and fee balance, then check the withdrawal again.', 'error');
     }
   } finally {
-    button.disabled = false;
+    claimInProgress = false;
+    $('replace-file').disabled = false;
+    if ($('claim-button')) {
+      $('claim-button').disabled = false;
+      $('claim-button').textContent = 'Claim with QoreX';
+    }
+    if ($('refresh-claim')) $('refresh-claim').disabled = false;
   }
 }
 
@@ -241,6 +318,7 @@ $('batch-form').addEventListener('submit', async event => {
   $('batch-result').hidden = true;
   feedback('batch-feedback', 'Reading the rollup and batch from Diana.');
   try {
+    const { client, readBatch } = await loadRecovery();
     const { rollup, batch } = await readBatch(client, fields.rollupId.trim(), fields.batchIndex.trim());
     $('batch-result').replaceChildren(detailList([
       ['Rollup', rollup.rollupId], ['Settlement', batch.status], ['Batch', '#' + batch.batchIndex],
@@ -264,6 +342,7 @@ $('export-form').addEventListener('submit', async event => {
   button.disabled = true;
   feedback('export-feedback', 'Checking the signed receipt and withdrawal proof.');
   try {
+    const { client, exportRecovery } = await loadRecovery();
     download(await exportRecovery(client, rest, fields));
     feedback('export-feedback', 'Recovery file saved. Keep a copy somewhere you can access later.', 'good');
   } catch (error) { feedback('export-feedback', messageFor(error), 'error'); }
@@ -272,19 +351,24 @@ $('export-form').addEventListener('submit', async event => {
 
 $('payout-form').addEventListener('submit', async event => {
   event.preventDefault();
+  if (claimInProgress) {
+    feedback('payout-feedback', 'Finish or cancel the open QoreX request before changing withdrawals.');
+    return;
+  }
   const form = event.currentTarget;
   const button = form.querySelector('button');
-  const id = ++requestId;
+  const id = requestId;
   button.disabled = true;
   feedback('payout-feedback', 'Checking the payout and signed settlement receipt.');
   try {
+    const { client, recoveryFromPayout } = await loadRecovery();
     const { file, status } = await recoveryFromPayout(client, rest, formValues(form).hash.trim());
-    if (id !== requestId) return;
+    if (id !== requestId || claimInProgress) return;
+    ++requestId;
     currentFile = file;
-    $('file-name').textContent = 'Recovered from Diana transaction';
-    $('file-loaded').hidden = false;
-    $('dropzone').hidden = true;
+    selectFile('Recovered from Diana transaction', 'loaded', 'Rebuilt from the confirmed payout');
     renderFile(status);
+    feedback('recover-feedback', '');
     feedback('payout-feedback', '');
     location.hash = 'recover';
   } catch (error) {
@@ -303,6 +387,7 @@ $('operator-form').addEventListener('submit', async event => {
   $('operator-empty').hidden = true;
   feedback('operator-feedback', 'Reading the rollup’s latest state from Diana.');
   try {
+    const { client, readOperator } = await loadRecovery();
     const status = await readOperator(client, formValues(form).operatorRollupId.trim());
     const facts = [
       ['Rollup', status.rollup.rollupId], ['Status', status.rollup.status],
@@ -320,6 +405,10 @@ $('operator-form').addEventListener('submit', async event => {
   finally { button.disabled = false; }
 });
 
+$('skip-link').addEventListener('click', event => {
+  event.preventDefault();
+  $('content').focus();
+});
 for (const id of ['choose-file', 'replace-file']) $(id).addEventListener('click', () => $('file-input').click());
 $('file-input').addEventListener('change', event => {
   void readFile(event.target.files[0]);
@@ -327,16 +416,24 @@ $('file-input').addEventListener('change', event => {
 });
 for (const type of ['dragenter', 'dragover', 'dragleave', 'drop']) {
   $('dropzone').addEventListener(type, event => {
+    if (type !== 'dragleave' && !Array.from(event.dataTransfer?.types ?? []).includes('Files')) return;
     event.preventDefault();
+    if (type === 'dragleave' && $('dropzone').contains(event.relatedTarget)) return;
     $('dropzone').classList.toggle('over', type === 'dragenter' || type === 'dragover');
     if (type === 'drop') void readFile(event.dataTransfer.files[0]);
   });
 }
 window.addEventListener('hashchange', () => route({ moveFocus: true }));
 route();
-client.params().then(() => {
+const params = new URLSearchParams({ path: '/qorechain/rdk/v1/params' });
+fetch('/api/chain?' + params, { signal: AbortSignal.timeout(12_000), cache: 'no-store' }).then(response => {
+  if (!response.ok) throw new Error('Network unavailable');
   $('network-dot').classList.add('live');
-  $('network-dot').parentElement.title = 'Diana responded';
+  $('network-dot').parentElement.dataset.connection = 'online';
+  $('network-dot').parentElement.title = 'Diana is reachable';
+  $('network-status').textContent = 'Network reachable';
 }).catch(() => {
+  $('network-dot').parentElement.dataset.connection = 'offline';
   $('network-dot').parentElement.title = 'Diana could not be reached';
+  $('network-status').textContent = 'Network unavailable';
 });

@@ -3,17 +3,15 @@ import {
   executeWithdrawalMsg, hexToBytes, isCanonicalQorAddress, isRestNotFound,
   qledgerWithdrawalLeaf, qorehash, receiptSchemaError, verifySettlementReceipt,
 } from '@qorechain/rdk';
+import { CHAIN_ID, FILE_LIMIT, RecoveryError } from './recovery-common.js';
 
-export const CHAIN_ID = 'qorechain-diana';
+export { CHAIN_ID, FILE_LIMIT, RecoveryError, formatAmount } from './recovery-common.js';
 export const DIANA_REST = 'https://api-testnet.qore.host';
 export const DIANA_RPC = 'https://rpc-testnet.qore.host';
-export const FILE_LIMIT = 64 * 1024;
 export const ROLLUP_ID = /^[a-z0-9][a-z0-9._-]{2,63}$/;
 const HASH = /^[a-f0-9]{64}$/i;
 const UINT64 = (1n << 64n) - 1n;
 const INT64 = (1n << 63n) - 1n;
-
-export class RecoveryError extends Error {}
 
 function integer(value, label, max) {
   if (typeof value !== 'string' || !/^(0|[1-9][0-9]{0,19})$/.test(value) || BigInt(value) > max) {
@@ -234,10 +232,4 @@ export async function recoveryFromPayout(client, restBase, hash) {
     throw new RecoveryError('Diana could not confirm this transaction in the payout index.');
   }
   return { file, status };
-}
-
-export function formatAmount(uqor) {
-  const amount = BigInt(uqor);
-  const fraction = (amount % 1_000_000n).toString().padStart(6, '0').replace(/0+$/, '');
-  return (amount / 1_000_000n).toLocaleString('en-US') + (fraction ? '.' + fraction : '') + ' QOR';
 }
