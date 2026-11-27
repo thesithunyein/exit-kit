@@ -136,7 +136,8 @@ h1, h2, p { margin: 0; }
   font: 11px/1.4 var(--mono);
   white-space: nowrap;
 }
-.network-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); }
+.network-mark { flex: none; border-radius: 4px; }
+.network-dot { flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--muted); }
 .network-dot.live { background: var(--accent); box-shadow: 0 0 0 3px #a1ddda20; }
 .network[data-connection="offline"] .network-dot { background: var(--amber); }
 
@@ -516,6 +517,14 @@ dd { margin: 0; overflow-wrap: anywhere; font: 12px/1.65 var(--mono); }
 .checks { margin: 0 0 12px; padding-left: 20px; color: var(--muted); line-height: 1.65; font-size: 14px; }
 .actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .actions .primary { min-height: 46px; }
+#claim-button::before {
+  content: "";
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: url('/brand/qorechain.png') center / cover no-repeat;
+}
 
 .guide-layout { display: grid; align-items: start; gap: 16px; margin-bottom: 36px; }
 .guide-sidebar { display: grid; align-content: start; gap: 12px; min-width: 0; }
