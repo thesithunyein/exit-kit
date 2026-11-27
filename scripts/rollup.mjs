@@ -18,13 +18,22 @@ const purpose = 'exit-kit-operator-note';
 async function replay() {
   const ledger = new QledgerLedger();
   const batches = await client.rest.listBatches(rollupId);
+  const indexed = new Map();
+  const rest = {
+    searchTxs(query) {
+      if (!indexed.has(query)) indexed.set(query, client.rest.searchTxs(query));
+      return indexed.get(query);
+    },
+    getPostedData: client.rest.getPostedData.bind(client.rest),
+    getInbox: client.rest.getInbox.bind(client.rest),
+  };
   let sequence = 0n;
   let acc = EMPTY_INBOX_ACC;
   const executed = new Map();
   for (const batch of batches) {
     const end = BigInt(batch.inboxEnd);
     if (BigInt(batch.inboxStart) !== sequence || end <= sequence) throw new Error('Chain inbox ranges are incomplete.');
-    const entries = await fetchQledgerEntries(client.rest, { ...environment, from: sequence, to: end, accFrom: acc });
+    const entries = await fetchQledgerEntries(rest, { ...environment, from: sequence, to: end, accFrom: acc });
     const nextAcc = qledgerAccumulate({ ...environment, from: sequence, accFrom: acc, entries });
     const dataHash = inboxRangeHash({ ...environment, from: sequence, to: end, accFrom: acc, accTo: nextAcc });
     const result = executeQledger(environment, ledger, entries);
