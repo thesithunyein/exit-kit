@@ -1,4 +1,4 @@
-import { DIANA_REST } from '../src/recovery.js';
+const DIANA_REST = 'https://api-testnet.qore.host';
 
 const rollup = '[a-z0-9][a-z0-9._-]{2,63}';
 const address = 'qor1[023456789acdefghjklmnpqrstuvwxyz]{20,80}';
@@ -30,17 +30,24 @@ export default async function chain(request, response) {
   response.setHeader('Content-Type', 'application/json');
   if (request.method !== 'GET') {
     response.setHeader('Allow', 'GET');
-    return response.status(405).json({ error: 'Method not allowed.' });
+    response.statusCode = 405;
+    return response.end(JSON.stringify({ error: 'Method not allowed.' }));
   }
-  const target = allowedChainPath(request.query.path);
-  if (!target) return response.status(400).json({ error: 'Unsupported Diana query.' });
+  const path = new URL(request.url, 'http://localhost').searchParams.get('path');
+  const target = allowedChainPath(path);
+  if (!target) {
+    response.statusCode = 400;
+    return response.end(JSON.stringify({ error: 'Unsupported Diana query.' }));
+  }
   try {
     const result = await fetch(target, {
       redirect: 'error', signal: AbortSignal.timeout(8_000), headers: { Accept: 'application/json' },
     });
     if (!result.headers.get('content-type')?.includes('application/json')) throw new Error('Invalid response');
-    return response.status(result.status).send(await result.text());
+    response.statusCode = result.status;
+    return response.end(await result.text());
   } catch {
-    return response.status(502).json({ error: 'Diana is unavailable. Try again.' });
+    response.statusCode = 502;
+    return response.end(JSON.stringify({ error: 'Diana is unavailable. Try again.' }));
   }
 }
