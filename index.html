@@ -15,9 +15,9 @@
     <header class="top">
       <a class="brand" href="/" aria-label="Exit Kit home"><img class="mark" src="/brand/exit-kit-192.png" width="38" height="38" alt="">Exit Kit</a>
       <nav aria-label="Main navigation">
-        <a href="#recover" data-nav>Recover</a>
-        <a href="#withdrawals" data-nav>Withdrawals</a>
-        <a href="#guide" data-nav>Guide</a>
+        <a href="#recover" data-nav><svg class="icon" aria-hidden="true"><use href="/icons/octicons.svg#file"></use></svg>Recover</a>
+        <a href="#withdrawals" data-nav><svg class="icon" aria-hidden="true"><use href="/icons/octicons.svg#search"></use></svg>Withdrawals</a>
+        <a href="#guide" data-nav><svg class="icon" aria-hidden="true"><use href="/icons/octicons.svg#book"></use></svg>Guide</a>
       </nav>
       <div class="network" data-connection="checking">
         <img class="network-mark" src="/brand/qorechain.png" alt="" width="16" height="16">
@@ -32,7 +32,7 @@
           <div class="intro-copy">
             <h1 id="recover-heading" tabindex="-1">Recover a withdrawal.</h1>
             <p>Waiting on a QoreChain rollup withdrawal? Open your recovery file to check its status on Diana and claim it with QoreX when it’s ready.</p>
-            <a class="hero-guide-link" href="#guide">How recovery works <span aria-hidden="true">→</span></a>
+            <a class="hero-guide-link" href="#guide">How recovery works <svg class="icon" aria-hidden="true"><use href="/icons/octicons.svg#arrow-right"></use></svg></a>
           </div>
           <div class="brand-art" id="hero-art" aria-hidden="true">
             <img src="/brand/exit-kit-crystal-poster.webp" width="280" height="280" alt="">
@@ -43,9 +43,9 @@
         </div>
         <div class="workspace recovery-workspace">
           <section id="file-panel" class="panel file-panel" aria-labelledby="file-heading">
-            <div class="panel-header"><h2 id="file-heading" tabindex="-1">Recovery file</h2></div>
+            <div class="panel-header"><h2 class="icon-heading" id="file-heading" tabindex="-1"><svg class="icon" aria-hidden="true"><use href="/icons/octicons.svg#file"></use></svg>Recovery file</h2></div>
             <div id="dropzone" class="dropzone">
-              <span class="upload-icon" aria-hidden="true">↑</span>
+              <span class="upload-icon" aria-hidden="true"><svg class="icon" aria-hidden="true"><use href="/icons/octicons.svg#upload"></use></svg></span>
               <strong class="drop-label">Drop your recovery file here</strong>
               <strong class="pick-label">Select a recovery file</strong>
               <span class="file-constraint" id="file-constraint">JSON · up to 64 KB</span>
@@ -64,10 +64,10 @@
               </div>
             </div>
             <p class="feedback file-feedback" id="file-feedback" role="alert" hidden></p>
-            <p class="small-note" id="file-privacy"><span class="lock-icon" aria-hidden="true"></span>Your file is read only on this device. Nothing is uploaded.</p>
+            <p class="small-note" id="file-privacy"><svg class="icon" aria-hidden="true"><use href="/icons/octicons.svg#shield-lock"></use></svg>Your file is read only on this device. Nothing is uploaded.</p>
           </section>
           <section class="panel result-panel" aria-labelledby="result-heading">
-            <div class="panel-header"><h2 id="result-heading" tabindex="-1">Withdrawal details</h2></div>
+            <div class="panel-header"><h2 class="icon-heading" id="result-heading" tabindex="-1"><svg class="icon" aria-hidden="true"><use href="/icons/octicons.svg#checklist"></use></svg>Withdrawal details</h2></div>
             <div class="empty" id="result-empty">
               <div class="receipt-outline" aria-hidden="true"><i></i><i></i><i></i></div>
               <p><strong id="empty-title">Open a recovery file to begin</strong></p>
@@ -79,7 +79,7 @@
           </section>
           <aside class="recovery-help">
             <h2>Lost your recovery file?</h2>
-            <a href="#find-withdrawal">Find your withdrawal on Diana <span aria-hidden="true">↗</span></a>
+            <a href="#find-withdrawal">Find your withdrawal on Diana <svg class="icon" aria-hidden="true"><use href="/icons/octicons.svg#arrow-right"></use></svg></a>
           </aside>
         </div>
       </section>
@@ -88,7 +88,7 @@
         <div class="intro"><h1 id="withdrawals-heading" tabindex="-1">Find a withdrawal.</h1><p>Find a completed payout by transaction hash, or create a recovery file with a proof from your rollup.</p></div>
         <div class="workspace">
           <section class="panel padded" aria-labelledby="payout-heading">
-            <h2 id="payout-heading" tabindex="-1">Find a paid withdrawal</h2>
+            <h2 class="icon-heading" id="payout-heading" tabindex="-1"><svg class="icon" aria-hidden="true"><use href="/icons/octicons.svg#search"></use></svg>Find a paid withdrawal</h2>
             <p class="section-description" id="payout-hint">Use the L1 payout hash from your wallet history or the Diana explorer.</p>
             <form id="payout-form" class="form">
               <label>Diana transaction hash<input id="payout-hash" name="hash" aria-describedby="payout-hint" required pattern="[a-fA-F0-9]{64}" placeholder="64 hexadecimal characters" autocomplete="off" spellcheck="false"></label>
@@ -97,12 +97,12 @@
             <p id="payout-feedback" class="feedback" role="status" hidden></p>
             <div class="lookup-next">
               <span>Still waiting for the payout?</span>
-              <a href="#create-recovery-file">Use a proof from your rollup</a>
+              <a href="#create-recovery-file">Use a proof from your rollup <svg class="icon" aria-hidden="true"><use href="/icons/octicons.svg#arrow-right"></use></svg></a>
             </div>
           </section>
           <div class="withdrawal-tools">
           <details class="panel padded tool-panel" id="proof-tools">
-            <summary id="export-heading"><span>Create a recovery file<span class="tool-preview">Verify the claim details and Merkle proof from your rollup.</span></span></summary>
+            <summary id="export-heading"><svg class="icon" aria-hidden="true"><use href="/icons/octicons.svg#file-code"></use></svg><span>Create a recovery file<span class="tool-preview">Verify the claim details and Merkle proof from your rollup.</span></span></summary>
             <p class="section-description">For an unpaid withdrawal, get its claim details and Merkle proof from the rollup that issued it. Exit Kit checks the proof before saving the file.</p>
             <form id="export-form" class="form">
               <div class="form-row">
@@ -115,17 +115,17 @@
               </div>
               <label>Recipient address<input name="recipient" required placeholder="qor1…" autocomplete="off" spellcheck="false"></label>
               <label>Merkle proof<textarea name="proof" rows="3" placeholder="One hexadecimal sibling hash per line" spellcheck="false"></textarea></label>
-              <button class="button primary" type="submit">Verify and save <span aria-hidden="true">↗</span></button>
+              <button class="button primary" type="submit"><svg class="icon" aria-hidden="true"><use href="/icons/octicons.svg#download"></use></svg>Verify and save</button>
             </form>
             <p id="export-feedback" class="feedback" role="status" hidden></p>
           </details>
           <details class="panel padded tool-panel">
-            <summary id="batch-heading"><span>Check a rollup batch<span class="tool-preview">Look up finality with a rollup ID and batch index.</span></span></summary>
+            <summary id="batch-heading"><svg class="icon" aria-hidden="true"><use href="/icons/octicons.svg#checklist"></use></svg><span>Check a rollup batch<span class="tool-preview">Look up finality with a rollup ID and batch index.</span></span></summary>
             <p class="section-description">Check whether a batch has finalized before you prepare a recovery file.</p>
             <form id="batch-form" class="form">
               <label>Rollup ID<input name="rollupId" required pattern="[a-z0-9][a-z0-9._\-]{2,63}" autocomplete="off" placeholder="Enter rollup ID"></label>
               <label>Batch index<input name="batchIndex" required inputmode="numeric" pattern="[0-9]+" autocomplete="off" placeholder="Enter batch index"></label>
-              <button class="button primary" type="submit">Check batch <span aria-hidden="true">↗</span></button>
+              <button class="button primary" type="submit"><svg class="icon" aria-hidden="true"><use href="/icons/octicons.svg#search"></use></svg>Check batch</button>
             </form>
             <p id="batch-feedback" class="feedback" role="status" hidden></p>
             <div id="batch-result" hidden></div>
@@ -138,15 +138,15 @@
         <div class="intro"><h1 id="operator-heading" tabindex="-1">Rollup status.</h1><p>Check the latest batch, inbox progress, and signed settlement receipt on Diana.</p></div>
         <div class="workspace">
           <section class="panel padded" aria-labelledby="rollup-heading">
-            <h2 id="rollup-heading">Rollup lookup</h2>
+            <h2 class="icon-heading" id="rollup-heading"><svg class="icon" aria-hidden="true"><use href="/icons/octicons.svg#search"></use></svg>Rollup lookup</h2>
             <form id="operator-form" class="form">
               <label>Rollup ID<input name="operatorRollupId" required placeholder="Enter rollup ID" autocomplete="off" spellcheck="false"></label>
-              <button class="button primary" type="submit">Check rollup <span aria-hidden="true">↗</span></button>
+              <button class="button primary" type="submit"><svg class="icon" aria-hidden="true"><use href="/icons/octicons.svg#search"></use></svg>Check rollup</button>
             </form>
             <p id="operator-feedback" class="feedback" role="status" hidden></p>
           </section>
           <section class="panel padded" aria-labelledby="health-heading">
-            <h2 id="health-heading">Latest chain state</h2>
+            <h2 class="icon-heading" id="health-heading"><svg class="icon" aria-hidden="true"><use href="/icons/octicons.svg#pulse"></use></svg>Latest chain state</h2>
             <p class="section-description" id="operator-empty">Enter a rollup ID to read its current state.</p>
             <div id="operator-result" hidden></div>
           </section>
@@ -158,7 +158,7 @@
         <div class="guide-layout">
           <aside class="guide-sidebar" aria-label="Guide shortcuts">
             <nav class="panel guide-nav" aria-labelledby="guide-nav-heading">
-              <h2 id="guide-nav-heading">On this page</h2>
+              <h2 class="icon-heading" id="guide-nav-heading"><svg class="icon" aria-hidden="true"><use href="/icons/octicons.svg#book"></use></svg>On this page</h2>
               <ul>
                 <li><a data-guide-link href="#guide-save">Save your recovery file</a></li>
                 <li><a data-guide-link href="#guide-verify">Check the withdrawal status</a></li>
@@ -168,10 +168,10 @@
               </ul>
             </nav>
             <section class="panel guide-shortcuts" aria-labelledby="guide-shortcuts-heading">
-              <h2 id="guide-shortcuts-heading">Recovery tools</h2>
-              <a class="button primary" href="#open-recovery-file">Open a recovery file</a>
-              <a class="guide-text-link" href="#find-withdrawal">Find a paid withdrawal <span aria-hidden="true">→</span></a>
-              <a class="guide-text-link" href="#create-recovery-file">Create a file from a proof <span aria-hidden="true">→</span></a>
+              <h2 class="icon-heading" id="guide-shortcuts-heading"><svg class="icon" aria-hidden="true"><use href="/icons/octicons.svg#gear"></use></svg>Recovery tools</h2>
+              <a class="button primary" href="#open-recovery-file"><svg class="icon" aria-hidden="true"><use href="/icons/octicons.svg#file"></use></svg>Open a recovery file</a>
+              <a class="guide-text-link" href="#find-withdrawal">Find a paid withdrawal <svg class="icon" aria-hidden="true"><use href="/icons/octicons.svg#arrow-right"></use></svg></a>
+              <a class="guide-text-link" href="#create-recovery-file">Create a file from a proof <svg class="icon" aria-hidden="true"><use href="/icons/octicons.svg#arrow-right"></use></svg></a>
             </section>
           </aside>
           <article class="panel guide-content">
@@ -191,17 +191,17 @@
             <section>
               <h2 id="guide-claim" tabindex="-1">Claim on Diana</h2>
               <p>Review the withdrawal in QoreX and approve the claim and network fee. The recipient address is fixed by the proof. A separate account can submit the claim and pay the fee.</p>
-              <p>If QoreX cannot display the withdrawal, the <a href="https://github.com/thesithunyein/exit-kit#independent-claim">independent command-line signer</a> can verify the same file and submit a hybrid-signed transaction with your approval.</p>
+              <p>If QoreX cannot display the withdrawal, the <a href="https://github.com/thesithunyein/exit-kit#independent-claim">independent command-line signer <svg class="icon" aria-hidden="true"><use href="/icons/octicons.svg#mark-github"></use></svg></a> can verify the same file and submit a hybrid-signed transaction with your approval.</p>
             </section>
             <section>
               <h2 id="guide-troubleshoot" tabindex="-1">Troubleshoot a claim</h2>
               <p>If Diana is temporarily unavailable, check again. If the batch or proof is missing, contact the rollup operator or verify the available state through your own QoreChain node.</p>
-              <p>For a lost file, <a href="#find-withdrawal">find a paid withdrawal by its L1 hash</a>. For an unpaid withdrawal, <a href="#create-recovery-file">create a file with the proof supplied by your rollup</a>.</p>
+              <p>For a lost file, <a href="#find-withdrawal">find a paid withdrawal by its L1 hash <svg class="icon" aria-hidden="true"><use href="/icons/octicons.svg#arrow-right"></use></svg></a>. For an unpaid withdrawal, <a href="#create-recovery-file">create a file with the proof supplied by your rollup <svg class="icon" aria-hidden="true"><use href="/icons/octicons.svg#arrow-right"></use></svg></a>.</p>
             </section>
             <section>
               <h2 id="privacy-heading" tabindex="-1">Recovery file privacy</h2>
               <p>Exit Kit reads the file on your device and uses public rollup and batch identifiers to query Diana. When you approve a claim, your wallet sends the withdrawal transaction and proof to QoreChain.</p>
-              <a class="guide-text-link" href="https://docs.qorechain.io/rollups/zk-stark-withdrawals/" target="_blank" rel="noreferrer">QoreChain withdrawal docs <span aria-hidden="true">↗</span></a>
+              <a class="guide-text-link" href="https://docs.qorechain.io/rollups/zk-stark-withdrawals/" target="_blank" rel="noreferrer">QoreChain withdrawal docs <svg class="icon" aria-hidden="true"><use href="/icons/octicons.svg#link-external"></use></svg></a>
             </section>
           </article>
         </div>
@@ -210,9 +210,9 @@
     <footer class="footer">
       <span>Local file processing · Diana testnet</span>
       <div class="footer-links">
-        <a href="#privacy">Privacy</a>
-        <a href="#operator">Operator</a>
-        <a href="https://github.com/thesithunyein/exit-kit">Source code <span aria-hidden="true">↗</span></a>
+        <a href="#privacy"><svg class="icon" aria-hidden="true"><use href="/icons/octicons.svg#shield-lock"></use></svg>Privacy</a>
+        <a href="#operator"><svg class="icon" aria-hidden="true"><use href="/icons/octicons.svg#gear"></use></svg>Operator</a>
+        <a href="https://github.com/thesithunyein/exit-kit"><svg class="icon" aria-hidden="true"><use href="/icons/octicons.svg#mark-github"></use></svg>GitHub</a>
       </div>
     </footer>
     <script type="module" src="/src/main.js"></script>

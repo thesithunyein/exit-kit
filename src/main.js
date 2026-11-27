@@ -95,10 +95,18 @@ function controls(title, callback, primary = false) {
 }
 
 function txLink(txHash) {
-  const link = node('a', 'View payout on Diana ↗', 'payout-link');
+  const link = node('a', 'View payout on Diana', 'payout-link');
   link.href = explorer + txHash;
   link.target = '_blank';
   link.rel = 'noreferrer';
+  const svgNamespace = 'http://www.w3.org/2000/svg';
+  const icon = document.createElementNS(svgNamespace, 'svg');
+  icon.setAttribute('class', 'icon');
+  icon.setAttribute('aria-hidden', 'true');
+  const shape = document.createElementNS(svgNamespace, 'use');
+  shape.setAttribute('href', '/icons/octicons.svg#link-external');
+  icon.append(shape);
+  link.append(icon);
   return link;
 }
 
