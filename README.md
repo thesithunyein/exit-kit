@@ -8,6 +8,8 @@ Recover a QoreChain Diana rollup withdrawal from a file you keep. Open the file,
 
 The browser reads recovery files locally. The web deployment proxies a narrow set of public Diana reads because the public REST node does not allow cross-origin requests. The independent CLI reads Diana directly and does not require the web app, operator API, or indexer.
 
+For a lost file, open **Withdrawals**. A paid withdrawal can be found using its Diana L1 transaction hash. To create a file for an unpaid withdrawal, use the claim details and Merkle proof supplied by the rollup.
+
 ## Start
 
 Use Node 24 and run `npm ci`, then `npm run dev`. Use `npm test` for the proof and format checks and `npm run build` for the website build. Vercel serves the static build and `api/chain.js`.

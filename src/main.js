@@ -6,6 +6,11 @@ const rest = new URL('/api/diana', location.origin).href;
 const $ = id => document.getElementById(id);
 const explorer = 'https://explore.qore.network/tx/';
 const knownRoutes = ['recover', 'withdrawals', 'operator', 'guide'];
+const routeTargets = new Map([
+  ['privacy', ['guide', 'privacy-heading']],
+  ['find-withdrawal', ['withdrawals', 'payout-heading']],
+  ['recovery-details', ['recover', 'result-heading']],
+]);
 let currentFile = null;
 let currentStatus = null;
 let requestId = 0;
@@ -24,17 +29,19 @@ function loadRecovery() {
 
 function route({ moveFocus = false } = {}) {
   const requested = location.hash.slice(1);
-  const active = requested === 'privacy' ? 'guide' : knownRoutes.includes(requested) ? requested : 'recover';
+  const target = routeTargets.get(requested);
+  const [active, heading] = target ??
+    (knownRoutes.includes(requested) ? [requested, requested + '-heading'] : ['recover', 'recover-heading']);
   for (const id of knownRoutes) $(id).hidden = id !== active;
   for (const link of document.querySelectorAll('[data-nav]')) {
     if (link.hash === '#' + active) link.setAttribute('aria-current', 'page');
     else link.removeAttribute('aria-current');
   }
-  if (requested === 'privacy') {
-    $('privacy-heading').focus();
+  if (target) {
+    $(heading).focus();
   } else if (moveFocus) {
     window.scrollTo(0, 0);
-    $(active + '-heading').focus({ preventScroll: true });
+    $(heading).focus({ preventScroll: true });
   }
 }
 
@@ -77,7 +84,7 @@ function controls(title, callback, primary = false) {
 }
 
 function txLink(txHash) {
-  const link = node('a', txHash);
+  const link = node('a', 'View payout on Diana ↗', 'payout-link');
   link.href = explorer + txHash;
   link.target = '_blank';
   link.rel = 'noreferrer';
@@ -110,6 +117,33 @@ function selectFile(name, state, status) {
   $('file-state').textContent = status;
 }
 
+function renderEmpty(title = 'Open a recovery file to begin',
+  copy = 'You’ll see the amount, recipient, and whether the withdrawal is ready to claim.') {
+  $('result').hidden = true;
+  $('result').replaceChildren();
+  $('result').removeAttribute('aria-busy');
+  $('result-empty').hidden = false;
+  $('empty-title').textContent = title;
+  $('empty-copy').textContent = copy;
+}
+
+function clearFile() {
+  if (claimInProgress) return;
+  ++requestId;
+  currentFile = null;
+  currentStatus = null;
+  $('file-loaded').hidden = true;
+  $('file-name').textContent = '';
+  $('file-state').textContent = '';
+  $('file-input').value = '';
+  $('dropzone').hidden = false;
+  renderEmpty();
+  $('result-announcement').textContent = 'Recovery file cleared.';
+  feedback('file-feedback', '');
+  feedback('recover-feedback', '');
+  $('choose-file').focus();
+}
+
 function renderFile(status = { state: 'checking' }) {
   if (!currentFile) return;
   currentStatus = status;
@@ -117,17 +151,20 @@ function renderFile(status = { state: 'checking' }) {
   const view = node('div', '', 'result-body');
   const badge = node('span', states[status.state], 'status');
   badge.dataset.state = status.state;
+  let disclosure;
   if (status.receiptVerified) {
     const amountCard = node('div', '', 'amount-card');
     const summary = node('div', '', 'amount-header');
     summary.append(node('span', 'Withdrawal amount', 'amount-label'), badge);
     amountCard.append(summary, node('p', formatAmount(file.amount), 'amount'),
       node('p', stateDescriptions[status.state], 'state-copy'));
-    const details = [
-      ['Recipient', file.recipient], ['Rollup', file.rollupId], ['Batch', '#' + file.batchIndex],
-    ];
-    if (status.txHash) details.push(['L1 transaction', txLink(status.txHash)]);
-    view.append(amountCard, detailList(details));
+    const recipient = node('div', '', 'recipient-value');
+    const copy = controls('Copy address', () => copyRecipient(file.recipient));
+    copy.className = 'button text-button';
+    copy.setAttribute('aria-label', 'Copy recipient address');
+    recipient.append(node('span', file.recipient), copy);
+    view.append(amountCard, detailList([['Recipient', recipient]]));
+    if (status.txHash) view.append(txLink(status.txHash));
   } else {
     const state = node('div', '', 'result-state');
     state.append(badge, node('p', stateDescriptions[status.state], 'state-copy'));
@@ -140,7 +177,7 @@ function renderFile(status = { state: 'checking' }) {
     view.append(state);
   }
   if (status.receiptVerified) {
-    const disclosure = node('details', '', 'verification');
+    disclosure = node('details', '', 'verification');
     disclosure.append(node('summary', 'View verification'));
     const checks = node('ul', '', 'checks');
     for (const check of [
@@ -149,8 +186,9 @@ function renderFile(status = { state: 'checking' }) {
       'Merkle proof binds the displayed recipient and amount.',
       status.state === 'pending' ? 'Batch is awaiting finality.' : 'Batch is finalized on QoreChain.',
     ]) checks.append(node('li', check));
-    disclosure.append(checks);
-    view.append(disclosure);
+    const references = [['Rollup', file.rollupId], ['Batch', '#' + file.batchIndex]];
+    if (status.txHash) references.push(['L1 transaction', status.txHash]);
+    disclosure.append(checks, detailList(references));
   }
   if (status.state !== 'checking') {
     const actions = node('div', '', 'actions');
@@ -168,6 +206,7 @@ function renderFile(status = { state: 'checking' }) {
     actions.append(refresh);
     view.append(actions);
   }
+  if (disclosure) view.append(disclosure);
   $('result').replaceChildren(view);
   $('result').hidden = false;
   $('result-empty').hidden = true;
@@ -202,13 +241,13 @@ async function readFile(file) {
   const id = ++requestId;
   currentFile = null;
   currentStatus = null;
-  $('result').hidden = true;
-  $('result-empty').hidden = false;
+  renderEmpty('Reading your recovery file', 'Exit Kit is checking the JSON on this device.');
   $('result-announcement').textContent = '';
   const choosing = document.activeElement === $('choose-file');
   selectFile(file.name, 'reading', 'Reading on this device…');
   if (choosing) $('replace-file').focus({ preventScroll: true });
   feedback('recover-feedback', '');
+  feedback('file-feedback', '');
   try {
     if (file.size > FILE_LIMIT) throw new RecoveryError('Choose a recovery file that is 64 KB or smaller.');
     const [{ parseRecovery }, text] = await Promise.all([loadRecovery(), file.text()]);
@@ -216,14 +255,24 @@ async function readFile(file) {
     if (id !== requestId) return;
     currentFile = decoded;
     selectFile(file.name, 'loaded', 'Opened on this device');
+    if ($('replace-file') === document.activeElement) $('result-heading').focus();
     await refreshClaim();
   } catch (error) {
     if (id === requestId) {
       selectFile(file.name, 'error', 'Could not open this file');
-      $('result-empty').hidden = true;
-      $('result-announcement').textContent = 'The recovery file could not be opened.';
-      feedback('recover-feedback', messageFor(error), 'error');
+      renderEmpty('Withdrawal details unavailable', 'Choose another recovery file to continue.');
+      feedback('file-feedback', error instanceof RecoveryError
+        ? error.message : 'Exit Kit couldn’t read the file. Try opening it again.', 'error');
     }
+  }
+}
+
+async function copyRecipient(address) {
+  try {
+    await navigator.clipboard.writeText(address);
+    feedback('recover-feedback', 'Recipient address copied.', 'good');
+  } catch {
+    feedback('recover-feedback', 'Clipboard access is unavailable. You can select and copy the address above.', 'error');
   }
 }
 
@@ -257,6 +306,7 @@ async function claimWithWallet(event) {
   button.disabled = true;
   button.textContent = 'Claim in progress…';
   $('replace-file').disabled = true;
+  $('clear-file').disabled = true;
   $('refresh-claim').disabled = true;
   feedback('recover-feedback', 'Checking the claim before asking QoreX to sign.');
   try {
@@ -289,6 +339,7 @@ async function claimWithWallet(event) {
   } finally {
     claimInProgress = false;
     $('replace-file').disabled = false;
+    $('clear-file').disabled = false;
     if ($('claim-button')) {
       $('claim-button').disabled = false;
       $('claim-button').textContent = 'Claim with QoreX';
@@ -329,6 +380,10 @@ $('batch-form').addEventListener('submit', async event => {
     const exportForm = $('export-form');
     exportForm.elements.rollupId.value = rollup.rollupId;
     exportForm.elements.batchIndex.value = batch.batchIndex;
+    $('batch-result').append(controls('Use this batch to create a file', () => {
+      $('proof-tools').open = true;
+      exportForm.elements.withdrawalIndex.focus();
+    }));
     feedback('batch-feedback', '');
   } catch (error) { feedback('batch-feedback', messageFor(error), 'error'); }
   finally { button.disabled = false; }
@@ -369,9 +424,10 @@ $('payout-form').addEventListener('submit', async event => {
     currentFile = file;
     selectFile('Recovered from Diana transaction', 'loaded', 'Rebuilt from the confirmed payout');
     renderFile(status);
+    feedback('file-feedback', '');
     feedback('recover-feedback', '');
     feedback('payout-feedback', '');
-    location.hash = 'recover';
+    location.hash = 'recovery-details';
   } catch (error) {
     if (id === requestId) feedback('payout-feedback', messageFor(error), 'error');
   } finally {
@@ -408,19 +464,20 @@ $('operator-form').addEventListener('submit', async event => {
 
 $('skip-link').addEventListener('click', event => {
   event.preventDefault();
-  $('content').focus();
+  ($('recover').hidden ? $('content') : $('file-heading')).focus();
 });
+$('clear-file').addEventListener('click', clearFile);
 for (const id of ['choose-file', 'replace-file']) $(id).addEventListener('click', () => $('file-input').click());
 $('file-input').addEventListener('change', event => {
   void readFile(event.target.files[0]);
   event.target.value = '';
 });
 for (const type of ['dragenter', 'dragover', 'dragleave', 'drop']) {
-  $('dropzone').addEventListener(type, event => {
+  $('file-panel').addEventListener(type, event => {
     if (type !== 'dragleave' && !Array.from(event.dataTransfer?.types ?? []).includes('Files')) return;
     event.preventDefault();
-    if (type === 'dragleave' && $('dropzone').contains(event.relatedTarget)) return;
-    $('dropzone').classList.toggle('over', type === 'dragenter' || type === 'dragover');
+    if (type === 'dragleave' && $('file-panel').contains(event.relatedTarget)) return;
+    $('file-panel').classList.toggle('over', !claimInProgress && (type === 'dragenter' || type === 'dragover'));
     if (type === 'drop') void readFile(event.dataTransfer.files[0]);
   });
 }
