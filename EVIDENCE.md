@@ -17,6 +17,6 @@ node scripts/check-diana.mjs
 
 ## Exit Kit-owned Diana run
 
-The public payout and watchtower data above come from Vigil and SkyProof. The Exit Kit-owned payout, operator-offline recording, and live ML-KEM registration and handoff remain pending.
-
-The Diana preflight found `exit-kit-diana` unregistered and the project operator with 0 spendable test QOR. Live parameters put the minimum stake and bond at 12,000 QOR before deposits and fees. [Operator-offline runbook](DIANA_RUN.md)
+- On 28 November 2026, the operator created `exit-kit-diana`. The Diana registry reports an active Qledger v1 rollup with a registered sidechain layer. The layer was listed as proposed at the time of the check. [Rollup creation transaction](https://explore.qore.network/tx/E6B2BA463C17901CA986F72CC079A1A6CE914387909190042A76534E2BA8823B)
+- The same operator registered its ML-KEM key on Diana. The CLI fetched that registered key, encrypted a local rehearsal note, and decrypted it successfully with the recipient’s local key. Both plaintext copies had SHA-256 `89454776138d4854d72002624afd616cddaf654c98d842a7b72e55aa22cff5f4`. [KEM registration transaction](https://explore.qore.network/tx/DEA04DE1A5CEBB552166F3918FD26C59094A96A38CF28618CEFA45EB2B64C493)
+- The operator had 999.745079 spendable test QOR after deployment and key registration. The 1,000 QOR submitter bond, deposit and fees still need funding. The project-owned signed batch, payout and operator-offline recording remain pending. [Operator-offline runbook](DIANA_RUN.md)

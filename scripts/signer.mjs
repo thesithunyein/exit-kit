@@ -12,7 +12,7 @@ export async function connectSigner(client, mnemonic) {
   const [account] = await signer.getAccounts();
   const key = await resolvePqcKeypair(client, account.address, mnemonic);
   return client.connectTx(signer, { pqcKeypair: key.keypair, includePqcPublicKey: key.includePqcPublicKey,
-    signBytesVersion: 'auto', address: account.address });
+    signBytesVersion: 'auto', gasPrice: '0.15uqor', address: account.address });
 }
 
 export function committed(result) {

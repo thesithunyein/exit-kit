@@ -218,7 +218,7 @@ exit-kit/
 
 ## Verification and security
 
-The browser and independent verifier have been checked against a historical payout from Vigil. The signerless watch also replayed finalized SkyProof batches on Diana. An Exit Kit-owned rollup and its operator-outage payout remain unverified. [Evidence and test details](EVIDENCE.md)
+The browser and independent verifier have been checked against a historical payout from Vigil. The signerless watch also replayed finalized SkyProof batches on Diana. Exit Kit’s own rollup is registered and its ML-KEM handoff was exercised with a Diana-registered key. The project-owned payout during an operator outage remains pending. [Evidence and test details](EVIDENCE.md)
 
 Recovery files contain payout metadata and should be shared only when necessary. Use the private contact in the security policy for vulnerability reports. [Security policy](SECURITY.md) · [Threat model](THREAT_MODEL.md)
 
