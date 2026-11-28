@@ -1,0 +1,104 @@
+{
+  "rollupId": "skyproof-1",
+  "batches": [
+    {
+      "batch": 0,
+      "status": "finalized",
+      "signedReceipt": true,
+      "anchorHeight": 10600497,
+      "stateRoot": "3d2fc62fc8de63174ca39bcd2d8fc32943c302fff238bf79199cc9c2d9c8820b",
+      "withdrawalsRoot": null
+    },
+    {
+      "batch": 1,
+      "status": "finalized",
+      "signedReceipt": true,
+      "anchorHeight": 10600552,
+      "stateRoot": "af757880e6bc9a2115369f4d14f329b03bd863a290986ecc0e9d48422c3cd083",
+      "withdrawalsRoot": "afab865b5575dbcab1190b91fcf9ffe153611a68583fb13c49df274a752cc65f"
+    },
+    {
+      "batch": 2,
+      "status": "finalized",
+      "signedReceipt": true,
+      "anchorHeight": 10600552,
+      "stateRoot": "af757880e6bc9a2115369f4d14f329b03bd863a290986ecc0e9d48422c3cd083",
+      "withdrawalsRoot": null
+    },
+    {
+      "batch": 3,
+      "status": "finalized",
+      "signedReceipt": true,
+      "anchorHeight": 10601590,
+      "stateRoot": "28b2ac71503a5ede274b1f908f772979e9fca2d2a6b77b52b768438385bedcde",
+      "withdrawalsRoot": "036ad9dbbf091a9bbfb586ecd174d70ccfa1db10dedf8a2d94c9b626f33edf0d"
+    },
+    {
+      "batch": 4,
+      "status": "finalized",
+      "signedReceipt": true,
+      "anchorHeight": 10601590,
+      "stateRoot": "28b2ac71503a5ede274b1f908f772979e9fca2d2a6b77b52b768438385bedcde",
+      "withdrawalsRoot": null
+    },
+    {
+      "batch": 5,
+      "status": "finalized",
+      "signedReceipt": true,
+      "anchorHeight": 10687281,
+      "stateRoot": "717bee95a299189e1765009f5cda3a203cfc54cf09c79a05a52a796792589584",
+      "withdrawalsRoot": null
+    },
+    {
+      "batch": 6,
+      "status": "finalized",
+      "signedReceipt": true,
+      "anchorHeight": 10687359,
+      "stateRoot": "28763ad839908f0858e28ee32c6fd6f7c0811cf26f5cab7e9841443ba2620e2d",
+      "withdrawalsRoot": "0994bb1ca3beb48e12deb96a6a51b4551a2612f382d686ad9116becacf642646"
+    },
+    {
+      "batch": 7,
+      "status": "finalized",
+      "signedReceipt": true,
+      "anchorHeight": 10687390,
+      "stateRoot": "46cbe3e7971561fb5a9cb02767d8cca2bb99ab7b4c8f86946d3521622152a615",
+      "withdrawalsRoot": "efc3bb0cb449fd8168c59d5d57234919a1324db82611f90366b8c38eca2a629d"
+    },
+    {
+      "batch": 8,
+      "status": "finalized",
+      "signedReceipt": true,
+      "anchorHeight": 10718081,
+      "stateRoot": "97ec93a273d298f6cb4995670ad2ac597d85530ba5698a60a4bc684c83d8bdb2",
+      "withdrawalsRoot": null
+    },
+    {
+      "batch": 9,
+      "status": "finalized",
+      "signedReceipt": true,
+      "anchorHeight": 10718081,
+      "stateRoot": "97ec93a273d298f6cb4995670ad2ac597d85530ba5698a60a4bc684c83d8bdb2",
+      "withdrawalsRoot": null
+    },
+    {
+      "batch": 10,
+      "status": "finalized",
+      "signedReceipt": true,
+      "anchorHeight": 10724199,
+      "stateRoot": "ec6b7792b2a0134ac20196cab5c7aee4327027297a91cf8bda176b1e3a111517",
+      "withdrawalsRoot": "d98fe712a3ffdafb36332dada8f09e2207e7a0616e3648fccaf71d15b1b66b83"
+    },
+    {
+      "batch": 11,
+      "status": "finalized",
+      "signedReceipt": true,
+      "anchorHeight": 10724199,
+      "stateRoot": "ec6b7792b2a0134ac20196cab5c7aee4327027297a91cf8bda176b1e3a111517",
+      "withdrawalsRoot": null
+    }
+  ],
+  "inboxHead": 96,
+  "consumedThrough": 96,
+  "checkedAt": "2026-11-28T03:01:02.520Z"
+}

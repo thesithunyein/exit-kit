@@ -13,7 +13,6 @@ const client = chainClient();
 const operation = process.argv[2];
 const rollupId = process.env.EXIT_KIT_ROLLUP || 'exit-kit-diana';
 const environment = { chainId: CHAIN_ID, rollupId };
-const purpose = 'exit-kit-operator-note';
 
 async function replay() {
   const ledger = new QledgerLedger();
@@ -70,7 +69,11 @@ async function run() {
     for (const batch of batches) {
       const receipt = await buildSettlementReceipt(client, rollupId, batch.batchIndex);
       if (!(await verifySettlementReceipt(receipt, { client })).valid) throw new Error('Unverifiable anchor on batch ' + batch.batchIndex);
-      statuses.push({ batch: batch.batchIndex, status: batch.status, signedReceipt: true });
+      statuses.push({
+        batch: batch.batchIndex, status: batch.status, signedReceipt: true, anchorHeight: receipt.mainChainHeight,
+        stateRoot: receipt.stateRoot,
+        withdrawalsRoot: batch.withdrawalsRoot ? bytesToHex(decodeWireBytes(batch.withdrawalsRoot)) : null,
+      });
     }
     const inbox = await client.rest.getInbox(rollupId);
     console.log(JSON.stringify({ rollupId, batches: statuses, inboxHead: inbox.headSequence,
@@ -97,23 +100,20 @@ async function run() {
   if (operation === 'seal-note') {
     const [recipient, input, output] = process.argv.slice(3);
     if (!isCanonicalQorAddress(recipient || '') || !input || !output) throw new Error('Usage: node scripts/rollup.mjs seal-note <recipient> <input-file> <output-file>');
-    const { envelopeToText, seal } = await import('@qorechain/qoreseal');
+    const { sealResponderNote } = await import('./responder-note.mjs');
     const { fetchMlkemPublicKey } = await import('@qorechain/qoreseal/network');
     const mlkemPublicKey = await fetchMlkemPublicKey({ address: recipient, rest: DIANA_REST });
-    const plaintext = await readFile(input);
-    const envelope = seal({ chainId: CHAIN_ID, purpose, mode: 'mlkem', recipients: [{ mlkemPublicKey }],
-      plaintext, aad: new TextEncoder().encode(rollupId) });
-    await writeFile(output, envelopeToText(envelope) + '\n', { flag: 'wx' });
+    const envelope = sealResponderNote(rollupId, mlkemPublicKey, await readFile(input));
+    await writeFile(output, envelope + '\n', { flag: 'wx' });
     return;
   }
   const mnemonic = await mnemonicFor(process.env.QORE_SIGNER_FILE);
   if (operation === 'open-note') {
     const [input, output] = process.argv.slice(3);
     if (!input || !output) throw new Error('Usage: node scripts/rollup.mjs open-note <input-file> <output-file>');
-    const { deriveSealKeys, envelopeFromText, open } = await import('@qorechain/qoreseal');
-    const envelope = envelopeFromText((await readFile(input, 'utf8')).trim());
-    const plaintext = open({ chainId: CHAIN_ID, purpose, envelope, keys: deriveSealKeys({ mnemonic }),
-      aad: new TextEncoder().encode(rollupId) });
+    const { deriveSealKeys } = await import('@qorechain/qoreseal');
+    const { openResponderNote } = await import('./responder-note.mjs');
+    const plaintext = openResponderNote(rollupId, deriveSealKeys({ mnemonic }), await readFile(input, 'utf8'));
     await writeFile(output, plaintext, { flag: 'wx', mode: 0o600 });
     return;
   }

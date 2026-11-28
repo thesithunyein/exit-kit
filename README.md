@@ -25,6 +25,18 @@
 
 Exit Kit is an independent recovery tool for Qledger v1 withdrawals on QoreChain's Diana testnet. Open a recovery file to verify the amount, original recipient, and payout status. If the withdrawal is ready, submit the claim with QoreX or use the command-line signer against Diana directly.
 
+## Verify a Diana withdrawal
+
+Open the [public recovery file](https://raw.githubusercontent.com/thesithunyein/exit-kit/main/evidence/vigil-payout.json) in [Exit Kit](https://exit-kit-alpha.vercel.app/#recover). It should show **Already claimed** and **0.1 QOR**. This is a historical Vigil payout used to verify compatibility.
+
+After `npm ci`, verify the same file directly against Diana from the repository root.
+
+```sh
+node scripts/claim.mjs evidence/vigil-payout.json
+```
+
+[Diana payout transaction](https://explore.qore.network/tx/258430D7FA0F4DB3CA8D2ABFF50C3247B1FF66058D02AFB293775ADDBD51A21C) · [Evidence and verification scope](EVIDENCE.md)
+
 ## The problem
 
 A rollup's interface can go offline while a withdrawal is still waiting to be claimed. Users who saved a Merkle proof and signed settlement receipt can check that withdrawal independently as long as Diana retains the state required to execute it. A withdrawal that has yet to enter an executable batch still depends on rollup progress.
@@ -102,6 +114,7 @@ Open the local URL printed by Vite. The dev server mounts the same `/api/chain` 
 | `npm test` | Check proof compatibility, input validation, transaction construction, and the proxy allowlist. |
 | `npm run build` | Build the static frontend for production. |
 | `node scripts/check-diana.mjs` | Reconstruct and verify Vigil's historical Diana payout using live chain data. |
+| `node scripts/preflight.mjs <operator-qor1-address>` | Check the operator’s spendable test QOR and Diana’s live deployment requirements. |
 
 ## Recovery file format
 
@@ -141,6 +154,8 @@ node scripts/claim.mjs path/to/file.recovery.json --broadcast
 
 Set `EXIT_KIT_ROLLUP` to choose a rollup ID. It defaults to `exit-kit-diana`. Signed operator actions use `QORE_SIGNER_FILE` and require Diana test QOR for the relevant stake, bond, deposits, and fees.
 
+For the full payout and operator-offline verification sequence, see the [Diana runbook](DIANA_RUN.md).
+
 | Step | Command | Purpose |
 | --- | --- | --- |
 | 1 | `node scripts/rollup.mjs create` | Register a based Qledger rollup. |
@@ -160,6 +175,7 @@ exit-kit/
 │   └── chain.js                  Vercel API entry point
 ├── assets/
 │   └── exit-kit-crystal-4k.mp4    Full-resolution brand animation
+├── evidence/                     Public Diana verification artifacts
 ├── public/
 │   ├── brand/                    App icons, chain mark, and web animation
 │   ├── icons/                    Primer Octicons sprite and upstream license
@@ -167,6 +183,8 @@ exit-kit/
 ├── scripts/
 │   ├── check-diana.mjs            Historical payout verification
 │   ├── claim.mjs                  Independent verification and claim CLI
+│   ├── preflight.mjs              Public Diana stake and balance checks
+│   ├── responder-note.mjs         ML-KEM envelope helper
 │   ├── rollup.mjs                 Rollup lifecycle, replay, exports, and notes
 │   └── signer.mjs                 Local Diana signer and transaction checks
 ├── server/
@@ -178,7 +196,8 @@ exit-kit/
 │   ├── recovery.js                File validation, proof checks, and RDK calls
 │   └── style.css                  Site styles
 ├── test/
-│   └── recovery.test.js           Recovery and proxy regression tests
+│   ├── recovery.test.js           Recovery and proxy regression tests
+│   └── responder-note.test.js     ML-KEM recipient and rollup binding tests
 ├── index.html                     Web application shell
 ├── package.json                   Commands and dependencies
 ├── package-lock.json              Dependency lockfile
@@ -191,6 +210,7 @@ exit-kit/
 ├── SECURITY.md
 ├── THREAT_MODEL.md
 ├── EVIDENCE.md
+├── DIANA_RUN.md
 ├── AI_USAGE.md
 ├── brand.md
 └── LICENSE
