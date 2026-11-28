@@ -27,15 +27,15 @@ Exit Kit is an independent recovery tool for Qledger v1 withdrawals on QoreChain
 
 ## Verify a Diana withdrawal
 
-Open the [public recovery file](https://raw.githubusercontent.com/thesithunyein/exit-kit/main/evidence/vigil-payout.json) in [Exit Kit](https://exit-kit-alpha.vercel.app/#recover). It should show **Already claimed** and **0.1 QOR**. This is a historical Vigil payout used to verify compatibility.
+Open the [public recovery file](https://raw.githubusercontent.com/thesithunyein/exit-kit/main/evidence/exit-kit-payout.json) in [Exit Kit](https://exit-kit-alpha.vercel.app/#recover). It shows **Already claimed** and **1 QOR** for batch 1, withdrawal 0 of `exit-kit-diana`. The independent CLI signer submitted the claim after the operator’s batch-submitting session ended.
 
 After `npm ci`, verify the same file directly against Diana from the repository root.
 
 ```sh
-node scripts/claim.mjs evidence/vigil-payout.json
+node scripts/claim.mjs evidence/exit-kit-payout.json
 ```
 
-[Diana payout transaction](https://explore.qore.network/tx/258430D7FA0F4DB3CA8D2ABFF50C3247B1FF66058D02AFB293775ADDBD51A21C) · [Evidence and verification scope](EVIDENCE.md)
+[Diana payout transaction](https://explore.qore.network/tx/53FE5467F53408563288ACFF77C58A3791E0CFF52C916201905A220CDFDF8705) · [Recorded recovery](evidence/operator-offline.mp4) · [Evidence and verification scope](EVIDENCE.md)
 
 ## The problem
 
@@ -218,7 +218,7 @@ exit-kit/
 
 ## Verification and security
 
-The browser and independent verifier have been checked against a historical payout from Vigil. The signerless watch also replayed finalized SkyProof batches on Diana. Exit Kit’s own rollup is registered and its ML-KEM handoff was exercised with a Diana-registered key. The project-owned payout during an operator outage remains pending. [Evidence and test details](EVIDENCE.md)
+Exit Kit has a confirmed 1 QOR payout from its own Diana rollup, verified in the browser and via the independent signer after the operator’s batch-submitting session ended. The watchtower replayed the signed batch, and the recipient opened the ML-KEM handoff with its Diana-registered key. Compatibility checks also cover a historical Vigil payout and finalized SkyProof batches. [Evidence and test details](EVIDENCE.md)
 
 Recovery files contain payout metadata and should be shared only when necessary. Use the private contact in the security policy for vulnerability reports. [Security policy](SECURITY.md) · [Threat model](THREAT_MODEL.md)
 

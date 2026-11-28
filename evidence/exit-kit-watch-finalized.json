@@ -1,0 +1,24 @@
+{
+  "rollupId": "exit-kit-diana",
+  "batches": [
+    {
+      "batch": 0,
+      "status": "finalized",
+      "signedReceipt": true,
+      "anchorHeight": 10892665,
+      "stateRoot": "eaa60c043f5af27039a015aa31bb401cf2a579605abae8aeee82e6fb91902350",
+      "withdrawalsRoot": null
+    },
+    {
+      "batch": 1,
+      "status": "finalized",
+      "signedReceipt": true,
+      "anchorHeight": 10892745,
+      "stateRoot": "a2bb7f20f22d0bd7331f869c6834e057f20b4dbe8bc100a0651bc94caa5f05c5",
+      "withdrawalsRoot": "510379caf9ba4b0d6041fb637005fedfa769cc48ad329fc088359323cde32c25"
+    }
+  ],
+  "inboxHead": 2,
+  "consumedThrough": 2,
+  "checkedAt": "2026-11-28T06:50:06.210Z"
+}
